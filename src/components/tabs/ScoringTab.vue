@@ -541,7 +541,7 @@ async function runScoring() {
 
     progressPct.value = 100
     progressMsg.value = '成績計算完成！'
-    emit('log', `[Scoring] 成績計算完成，共處理 ${rankedStudents.length} 名學生！`)
+    emit('log', `[Scoring] 成績計算完成，共處理 ${studentList.length} 名學生！`)
   } catch (err) {
     alert('成績計算失敗: ' + err.message)
     emit('log', '❌ 錯誤: ' + err.message)
