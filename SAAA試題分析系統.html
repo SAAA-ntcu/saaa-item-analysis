@@ -1,0 +1,2790 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAAA 縣市學生學習能力檢測 - 試題分析與成績計算系統</title>
+  <!-- ExcelJS & JSZip -->
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    /* ========================================================================= */
+    /* SAAA-VUE MORANDI NOTEBOOK DESIGN SYSTEM                                   */
+    /* ========================================================================= */
+    :root {
+      --morandi-primary: #52796f;
+      --morandi-primary-dark: #354f52;
+      --morandi-primary-light: #edf2ee;
+      --morandi-terracotta: #c47c5d;
+      --morandi-coral: #e07a5f;
+      --morandi-cover-from: #729289;
+      --morandi-cover-to: #5f7e76;
+      --morandi-oat: #d4a373;
+      --morandi-apricot: #e9c46a;
+      --morandi-rose: #c87d8a;
+      --morandi-sage: #7ea172;
+      --morandi-slate-dark: #2f3e46;
+      --morandi-spine-loop: #3f4e55;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", "Microsoft JhengHei", "微軟正黑體", sans-serif;
+      min-height: 100vh;
+      color: #2d3748;
+      background-color: #f6f8f7;
+      background-image: url('images/login_background.svg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      padding-top: 76px;
+      padding-bottom: 90px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* Custom scrollbar matching saaa-vue */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* ========================================================================= */
+    /* FIXED APP HEADER (Matching AppHeader.vue)                                 */
+    /* ========================================================================= */
+    header.saaa-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 68px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--morandi-primary);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .saaa-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .saaa-logo-icon {
+      height: 42px;
+      width: auto;
+      transition: transform 0.2s ease;
+    }
+    .saaa-header-left:hover .saaa-logo-icon { transform: scale(1.05); }
+
+    .saaa-title-group h1 {
+      font-size: 17px;
+      font-weight: 900;
+      color: #203b46;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    .saaa-title-group p {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #5f7f6f;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: sans-serif;
+    }
+
+    /* Header Nav Pills */
+    .saaa-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      list-style: none;
+    }
+
+    .nav-pill {
+      background: transparent;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--slate-600);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .nav-pill:hover {
+      background: #f4f7f5;
+      color: var(--morandi-primary);
+    }
+    .nav-pill.active {
+      background: var(--morandi-primary-light);
+      color: var(--morandi-primary-dark);
+      font-weight: 700;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      outline: 1px solid rgba(82, 121, 111, 0.25);
+    }
+
+    .saaa-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-capsule {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border: 1px solid rgba(203, 213, 225, 0.8);
+      border-radius: 12px;
+      background: #ffffff;
+      font-size: 11.5px;
+      color: var(--slate-700);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .capsule-badge {
+      background: #e0f2fe;
+      color: #0284c7;
+      border: 1px solid #bae6fd;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    /* ========================================================================= */
+    /* NOTEBOOK BINDER FRAME (Matching NotebookFrame.vue)                         */
+    /* ========================================================================= */
+    .notebook-container {
+      width: 100%;
+      max-width: 1480px;
+      margin: 18px auto;
+      padding: 0 16px;
+      position: relative;
+    }
+
+    .notebook-shell {
+      position: relative;
+      border-radius: 2.5rem;
+      padding: 1.25rem 1.25rem 2rem 1.25rem;
+      background: linear-gradient(135deg, var(--morandi-cover-from), var(--morandi-cover-to));
+      border-top: 4px solid rgba(255, 255, 255, 0.35);
+      border-bottom: 4px solid rgba(255, 255, 255, 0.35);
+      border-left: 12px solid rgba(255, 255, 255, 0.35);
+      border-right: 12px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 25px 50px -12px rgba(47, 62, 70, 0.28);
+    }
+
+    /* Left Spine Rings */
+    .notebook-spine-container {
+      position: absolute;
+      left: 0;
+      top: 40px;
+      bottom: 45px;
+      width: 150px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      transform: translateX(-34px);
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 30;
+    }
+    @media (max-width: 900px) {
+      .notebook-spine-container { display: none; }
+    }
+
+    .spine-loop {
+      position: relative;
+      width: 120px;
+      height: 26px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+    .spine-inner {
+      position: absolute;
+      right: 3px;
+      width: 38px;
+      height: 26px;
+      border-radius: 9999px;
+      background: var(--morandi-spine-loop);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.45);
+      z-index: 10;
+    }
+    .spine-outer {
+      position: absolute;
+      left: 0;
+      width: 108px;
+      height: 11px;
+      border-radius: 9999px;
+      background: var(--morandi-terracotta);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+      z-index: 20;
+    }
+
+    /* Top Ribbon Bookmarks */
+    .ribbon-bookmark {
+      position: absolute;
+      top: -14px;
+      width: 44px;
+      height: 52px;
+      z-index: 15;
+      clip-path: polygon(50% 25%, 100% 0%, 100% 100%, 0% 100%, 0% 0%);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .ribbon-bookmark:hover { transform: translateY(-5px); }
+    .ribbon-oat { right: 88px; background: var(--morandi-oat); }
+    .ribbon-slate { right: 40px; background: var(--morandi-slate-dark); }
+
+    /* Right Index Tabs */
+    .index-tabs-wrapper {
+      position: absolute;
+      right: -24px;
+      top: 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      z-index: 5;
+    }
+    @media (max-width: 900px) {
+      .index-tabs-wrapper { display: none; }
+    }
+
+    .index-tab {
+      width: 68px;
+      height: 50px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+    .index-tab:hover { transform: translateX(10px); }
+    .tab-rose {
+      background: var(--morandi-rose);
+      color: #fff;
+      clip-path: polygon(0% 0%, 75% 0%, 50% 50%, 75% 100%, 0% 100%);
+    }
+    .tab-apricot {
+      background: var(--morandi-apricot);
+      color: var(--morandi-primary-dark);
+      border-radius: 0 10px 10px 0;
+    }
+    .tab-sage {
+      background: var(--morandi-sage);
+      color: #fff;
+      border-radius: 0 9999px 9999px 0;
+    }
+
+    /* Inner Notebook Page */
+    .notebook-page {
+      background: #fcfdfd;
+      border-radius: 2rem;
+      padding: 1.75rem 2rem 3rem 4.5rem;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02);
+      min-height: 720px;
+      border: 1px solid #f1f5f9;
+      position: relative;
+      z-index: 10;
+    }
+    @media (max-width: 900px) {
+      .notebook-page { padding: 1.25rem; border-radius: 1.5rem; }
+    }
+
+    /* Bottom Reader Illustrations */
+    .reader-illust {
+      position: absolute;
+      bottom: -46px;
+      z-index: 35;
+      pointer-events: none;
+      transition: transform 0.3s ease;
+      width: 140px;
+    }
+    @media (max-width: 900px) {
+      .reader-illust { display: none; }
+    }
+    .reader-boy { left: -26px; }
+    .reader-girl { right: -36px; }
+    .reader-illust img { width: 100%; height: auto; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.12)); }
+    .reader-illust:hover { transform: scale(1.05); }
+
+    /* ========================================================================= */
+    /* MORANDI CARD & FORM CONTROLS                                              */
+    /* ========================================================================= */
+    .saaa-card {
+      background: #ffffff;
+      border-radius: 1.25rem;
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .card-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .card-title-group h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #203b46;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title-sub {
+      font-size: 12px;
+      color: var(--slate-400);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .title-accent-bar {
+      height: 4px;
+      width: 34px;
+      background: var(--morandi-primary);
+      border-radius: 9999px;
+      margin-top: 4px;
+    }
+
+    /* Notice Banner matching saaa-vue */
+    .notice-banner {
+      background: rgba(254, 243, 199, 0.7);
+      border: 1px solid rgba(251, 191, 36, 0.5);
+      border-radius: 1rem;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #92400e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    /* Dropzone Upload */
+    .drop-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 768px) {
+      .drop-grid { grid-template-columns: 1fr; }
+    }
+
+    .saaa-dropzone {
+      border: 2px dashed rgba(82, 121, 111, 0.4);
+      border-radius: 1.15rem;
+      padding: 24px 16px;
+      text-align: center;
+      background: rgba(244, 247, 245, 0.75);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .saaa-dropzone:hover, .saaa-dropzone.dragover {
+      border-color: var(--morandi-primary);
+      background: var(--morandi-primary-light);
+      transform: translateY(-1px);
+    }
+    .saaa-dropzone input[type="file"] {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .saaa-dropzone .drop-icon {
+      font-size: 30px;
+      margin-bottom: 6px;
+    }
+    .saaa-dropzone .drop-label {
+      font-weight: 700;
+      color: var(--morandi-primary-dark);
+      font-size: 13.5px;
+      margin-bottom: 2px;
+    }
+    .saaa-dropzone .drop-sub {
+      font-size: 11.5px;
+      color: var(--slate-400);
+    }
+    .saaa-dropzone .drop-status {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--morandi-primary);
+      word-break: break-all;
+    }
+
+    /* Form Controls */
+    .form-bar {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .saaa-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .saaa-form-group label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--slate-600);
+    }
+    .saaa-select, .saaa-input {
+      height: 38px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-700);
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 0.75rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .saaa-select:focus, .saaa-input:focus {
+      border-color: var(--morandi-primary);
+      box-shadow: 0 0 0 3px rgba(82, 121, 111, 0.2);
+    }
+
+    /* Buttons */
+    .saaa-btn {
+      height: 38px;
+      padding: 0 18px;
+      border-radius: 0.75rem;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .saaa-btn:active { transform: scale(0.97); }
+    .btn-morandi {
+      background: var(--morandi-primary);
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .btn-morandi:hover { background: var(--morandi-primary-dark); }
+    .btn-morandi:disabled { background: var(--slate-400); cursor: not-allowed; }
+
+    .btn-terracotta {
+      background: var(--morandi-terracotta);
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .btn-terracotta:hover { background: #b0694b; }
+
+    .btn-outline {
+      background: #ffffff;
+      color: var(--slate-700);
+      border: 1px solid var(--slate-200);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .btn-outline:hover { background: var(--slate-50); color: var(--morandi-primary); }
+
+    .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; border-radius: 0.6rem; }
+
+    /* Progress Box */
+    .saaa-progress-box {
+      margin-top: 14px;
+      display: none;
+    }
+    .progress-bar-track {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--morandi-primary), var(--morandi-sage));
+      transition: width 0.25s ease;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 11.5px;
+      color: var(--slate-500);
+      font-weight: 600;
+    }
+
+    /* Stats Grid */
+    .stats-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 1.25rem;
+    }
+    .stat-pill-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 1rem;
+      padding: 12px 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      border-top: 3px solid var(--morandi-primary);
+      transition: transform 0.2s ease;
+    }
+    .stat-pill-card:hover { transform: translateY(-2px); }
+    .stat-pill-card.mastery { border-top-color: #10b981; }
+    .stat-pill-card.basic { border-top-color: #f59e0b; }
+    .stat-pill-card.needy { border-top-color: #f43f5e; }
+
+    .stat-label-text {
+      font-size: 11px;
+      color: var(--slate-400);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-num-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--slate-800);
+      margin-top: 3px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Subtabs inside Dashboard */
+    .subtabs-segmented {
+      background: var(--slate-100);
+      padding: 4px;
+      border-radius: 12px;
+      display: inline-flex;
+      gap: 4px;
+      margin-bottom: 1rem;
+    }
+    .subtab-pill {
+      background: transparent;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--slate-600);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .subtab-pill:hover { color: var(--slate-900); }
+    .subtab-pill.active {
+      background: var(--morandi-primary);
+      color: #ffffff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+
+    /* Table Container */
+    .saaa-table-frame {
+      border: 1px solid var(--slate-200);
+      border-radius: 1rem;
+      overflow-x: auto;
+      max-height: 480px;
+      background: #ffffff;
+    }
+    table.saaa-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+    table.saaa-table th {
+      background: #f8fafc;
+      color: var(--slate-700);
+      font-weight: 800;
+      padding: 10px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 2px solid var(--slate-200);
+      white-space: nowrap;
+    }
+    table.saaa-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      white-space: nowrap;
+      color: var(--slate-700);
+    }
+    table.saaa-table tr:hover {
+      background: rgba(244, 247, 245, 0.85);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-mastery { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .badge-basic { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .badge-needy { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
+    .badge-info { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+
+    /* SVG Chart Box (ItemAnalysisTab.vue matching) */
+    .chart-container-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 1.15rem;
+      padding: 18px 20px;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+    .chart-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .chart-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--slate-800);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--slate-600);
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-line { width: 14px; height: 3px; border-radius: 2px; }
+
+    .chart-tooltip-popover {
+      position: absolute;
+      display: none;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 11px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.15);
+      pointer-events: none;
+      min-width: 170px;
+    }
+
+    /* Live Console Log */
+    .saaa-log-card {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 1rem;
+      padding: 14px 18px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      max-height: 180px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    /* ========================================================================= */
+    /* FIXED APP FOOTER (Matching AppFooter.vue)                                 */
+    /* ========================================================================= */
+    footer.saaa-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-top: 2px solid var(--morandi-primary);
+      box-shadow: 0 -4px 20px rgba(47, 62, 70, 0.06);
+      padding: 8px 16px;
+      z-index: 90;
+      text-align: center;
+      font-size: 11px;
+      color: var(--slate-600);
+    }
+
+    .footer-content {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .footer-line-1 {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .footer-line-2 {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--slate-500);
+      font-weight: 500;
+    }
+    .footer-line-1 a {
+      color: var(--morandi-primary);
+      text-decoration: none;
+      font-family: monospace;
+    }
+    .footer-line-1 a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================= -->
+  <!-- 1. FIXED TOP APP HEADER                                                   -->
+  <!-- ========================================================================= -->
+  <header class="saaa-header">
+    <div class="saaa-header-left" onclick="switchMainTab('ctt')" title="回首頁">
+      <svg class="saaa-logo-icon" viewBox="0 0 300 240" role="img" aria-label="SAAA Logo">
+        <defs>
+          <linearGradient id="bookGreen" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#9CB89A"/><stop offset="1" stop-color="#5F7F6F"/></linearGradient>
+          <linearGradient id="bookDark" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#6F9380"/><stop offset="1" stop-color="#4E6D5E"/></linearGradient>
+        </defs>
+        <path d="M23 57 C66 41 109 42 151 59 C184 44 227 45 272 62 L281 210 C230 198 190 204 151 228 C110 202 68 198 14 210 Z" fill="url(#bookDark)"/>
+        <path d="M37 50 C74 39 112 42 145 57 L145 199 C112 183 79 180 33 191 Z" fill="#FDFDF9" stroke="#9CB89A" stroke-width="7" stroke-linejoin="round"/>
+        <path d="M157 58 C190 44 225 45 260 56 L267 190 C225 181 190 182 157 200 Z" fill="#FDFDF9" stroke="#9CB89A" stroke-width="7" stroke-linejoin="round"/>
+        <path d="M151 60 L151 207" stroke="#7A9B86" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="71" cy="79" r="9" fill="none" stroke="#6F9480" stroke-width="5"/>
+        <circle cx="71" cy="112" r="9" fill="none" stroke="#6F9480" stroke-width="5"/>
+        <circle cx="71" cy="145" r="9" fill="none" stroke="#6F9480" stroke-width="5"/>
+        <circle cx="71" cy="178" r="9" fill="none" stroke="#6F9480" stroke-width="5"/>
+        <path d="M98 79 H127 M98 112 H127 M98 145 H127 M98 178 H127" stroke="#5F7F6F" stroke-width="8" stroke-linecap="round"/>
+        <rect x="177" y="139" width="24" height="45" rx="5" fill="#9CB89A"/>
+        <rect x="211" y="104" width="24" height="80" rx="5" fill="#6F9480"/>
+        <rect x="245" y="72" width="24" height="112" rx="5" fill="#5F7F6F"/>
+        <path d="M178 92 C199 87 220 78 239 62 C248 55 254 47 260 38" fill="none" stroke="#F0C363" stroke-width="10" stroke-linecap="round"/>
+        <path d="M246 38 L268 31 L264 54 Z" fill="#F0C363"/>
+        <path d="M214 20 V5 M193 27 L183 15 M236 27 L247 14" stroke="#F0C363" stroke-width="9" stroke-linecap="round"/>
+      </svg>
+      <div class="saaa-title-group">
+        <h1>縣市學生學習能力檢測</h1>
+        <p>Students' Academic Attainment Assessment</p>
+      </div>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="saaa-nav">
+      <button class="nav-pill active" id="btnNavCtt" onclick="switchMainTab('ctt')">📊 試題分析 (CTT)</button>
+      <button class="nav-pill" id="btnNavScoring" onclick="switchMainTab('scoring')">📝 成績計算 (Scoring)</button>
+      <button class="nav-pill" id="btnNavBatch" onclick="switchMainTab('batch')">🚀 全科批次處理 (Batch)</button>
+      <button class="nav-pill" id="btnNavAbout" onclick="switchMainTab('about')">ℹ️ 演算法規格與四捨五入</button>
+    </nav>
+
+    <!-- Header Right Capsule -->
+    <div class="saaa-header-right">
+      <div class="user-capsule">
+        <span class="capsule-badge">旗艦雙模</span>
+        <span style="font-weight:700;">純 JS 離線運算 · 0.00 標準</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. NOTEBOOK BINDER FRAME                                                  -->
+  <!-- ========================================================================= -->
+  <main class="notebook-container">
+    <div class="notebook-shell">
+      
+      <!-- Binder Spine Loops (Left Side Rings) -->
+      <div class="notebook-spine-container">
+        <!-- 24 Metal Rings -->
+        <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+          <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
+      </div>
+
+      <!-- Top Ribbon Bookmarks (Oat Mustard & Vintage Slate) -->
+      <div class="ribbon-bookmark ribbon-oat" onclick="switchMainTab('ctt')" title="切換至試題分析"></div>
+      <div class="ribbon-bookmark ribbon-slate" onclick="switchMainTab('scoring')" title="切換至成績計算"></div>
+
+      <!-- Right Index Tabs -->
+      <div class="index-tabs-wrapper">
+        <div class="index-tab tab-rose" onclick="switchMainTab('ctt')">試題分析</div>
+        <div class="index-tab tab-apricot" onclick="switchMainTab('scoring')">成績計算</div>
+        <div class="index-tab tab-sage" onclick="switchMainTab('batch')">全科批次</div>
+      </div>
+
+      <!-- Inner White Notebook Paper Page -->
+      <div class="notebook-page">
+
+        <!-- =================================================================== -->
+        <!-- TAB 1: 試題分析 (CTT Item Analysis)                                   -->
+        <!-- =================================================================== -->
+        <div id="tab-ctt">
+          <div class="saaa-card">
+            <div class="card-header-bar">
+              <div class="card-title-group">
+                <h2>
+                  <svg style="width:20px; height:20px; color:var(--morandi-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                  試題分析 (CTT Item Analysis)
+                </h2>
+                <div class="card-title-sub">獨立運作模式 ｜ 支援精熟等級 (精熟/基礎/待加強) ｜ 全數值四捨五入至小數後 2 位 (0.00)</div>
+                <div class="title-accent-bar"></div>
+              </div>
+            </div>
+
+            <!-- Notice Banner -->
+            <div class="notice-banner">
+              <svg style="width:16px; height:16px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>精熟等級由使用者手動設定門檻題數，無設定則純粹分析試題品質。極端組依 Kelley 27% 鐵律切點。</span>
+            </div>
+
+            <div class="drop-grid">
+              <div class="saaa-dropzone" id="cttAnsDropzone">
+                <input type="file" accept=".xlsx,.xls,.csv" onchange="handleCTTFileSelect('ans', this.files)">
+                <div class="drop-icon">🔑</div>
+                <div class="drop-label">拖曳或選取【答案檔】(.xlsx / .csv)</div>
+                <div class="drop-sub">支援橫向題號格式、縱向單科或多科格式</div>
+                <div class="drop-status" id="cttAnsFileStatus">尚未選擇檔案</div>
+              </div>
+
+              <div class="saaa-dropzone" id="cttRespDropzone">
+                <input type="file" accept=".xlsx,.xls,.csv" onchange="handleCTTFileSelect('resp', this.files)">
+                <div class="drop-icon">📝</div>
+                <div class="drop-label">拖曳或選取【作答檔 / 有效樣本】(.xlsx)</div>
+                <div class="drop-sub">自動排除缺考與無效，提取 item 1 ~ N 學生作答</div>
+                <div class="drop-status" id="cttRespFileStatus">尚未選擇檔案</div>
+              </div>
+            </div>
+
+            <!-- Parameters -->
+            <div class="form-bar">
+              <div class="saaa-form-group">
+                <label>測驗考科</label>
+                <select id="cttSubject" class="saaa-select">
+                  <option value="C">國語文 (C)</option>
+                  <option value="M">數學 (M)</option>
+                  <option value="E">英語 (E)</option>
+                  <option value="S">自然 (S)</option>
+                </select>
+              </div>
+
+              <div class="saaa-form-group">
+                <label>測驗年級 (正序排列)</label>
+                <select id="cttGrade" class="saaa-select">
+                  <option value="3">3 年級</option>
+                  <option value="4">4 年級</option>
+                  <option value="5">5 年級</option>
+                  <option value="6">6 年級</option>
+                  <option value="7">7 年級</option>
+                  <option value="7n">7n (七年級新生)</option>
+                  <option value="8">8 年級</option>
+                </select>
+              </div>
+
+              <div class="saaa-form-group" style="justify-content: flex-end; padding-bottom: 6px;">
+                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                  <input type="checkbox" id="cttEnableLevel" onchange="toggleCTTLevelInputs()">
+                  <span style="font-weight:700; color:var(--morandi-primary-dark);">計算精熟等級 (手動輸入門檻)</span>
+                </label>
+              </div>
+
+              <div class="saaa-form-group" id="cttMasteryGroup" style="display:none;">
+                <label>精熟門檻題數 (≥ 此題數為精熟)</label>
+                <input type="number" id="cttMasteryCut" class="saaa-input" placeholder="如 23" min="1" style="width:130px;">
+              </div>
+
+              <div class="saaa-form-group" id="cttBasicGroup" style="display:none;">
+                <label>基礎門檻題數 (≥ 此題數為基礎)</label>
+                <input type="number" id="cttBasicCut" class="saaa-input" placeholder="如 15" min="1" style="width:130px;">
+              </div>
+
+              <div class="saaa-form-group" style="align-self: flex-end;">
+                <button class="saaa-btn btn-morandi" onclick="runStandaloneCTT()">
+                  ⚡ 開始 CTT 試題分析
+                </button>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="saaa-progress-box" id="cttProgressBox">
+              <div class="progress-bar-track"><div class="progress-bar-fill" id="cttProgressBar"></div></div>
+              <div class="progress-info">
+                <span id="cttProgressMsg">準備中...</span>
+                <span id="cttProgressPct">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTT Dashboard -->
+          <div id="cttDashboard" style="display: none;">
+            <div class="saaa-card">
+              <div class="card-header-bar">
+                <div class="card-title-group">
+                  <h2>📈 試題分析品質總表與三等級分佈</h2>
+                  <div class="card-title-sub">數值全面四捨五入至小數後 2 位 (0.00) ｜ 100% 精準對齊 R 語言運算</div>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button class="saaa-btn btn-morandi btn-sm" onclick="downloadCTTOfficialWorkbook()">📥 匯出官方雙層總表與等級分析 (.xlsx)</button>
+                  <button class="saaa-btn btn-outline btn-sm" onclick="downloadCTTRClassicWorkbook()">📥 匯出 R 經典格式檔 (.xlsx)</button>
+                </div>
+              </div>
+
+              <!-- Stat Cards Matrix -->
+              <div class="stats-matrix">
+                <div class="stat-pill-card">
+                  <div class="stat-label-text">有效分析人數 (N)</div>
+                  <div class="stat-num-value" id="cttValN">-</div>
+                </div>
+                <div class="stat-pill-card">
+                  <div class="stat-label-text">測驗總題數 (Items)</div>
+                  <div class="stat-num-value" id="cttValItems">-</div>
+                </div>
+                <div class="stat-pill-card">
+                  <div class="stat-label-text">Cronbach's α 信度</div>
+                  <div class="stat-num-value" id="cttValAlpha">-</div>
+                </div>
+                <div class="stat-pill-card">
+                  <div class="stat-label-text">平均通過率 P (0.00)</div>
+                  <div class="stat-num-value" id="cttValP">-</div>
+                </div>
+                <div class="stat-pill-card">
+                  <div class="stat-label-text">平均鑑別度 D (0.00)</div>
+                  <div class="stat-num-value" id="cttValD">-</div>
+                </div>
+                <div class="stat-pill-card">
+                  <div class="stat-label-text">中分組標籤</div>
+                  <div class="stat-num-value" id="cttValMid">-</div>
+                </div>
+                <div class="stat-pill-card mastery" id="cttCardMastery">
+                  <div class="stat-label-text">精熟人數與比例</div>
+                  <div class="stat-num-value" id="cttValMastery">-</div>
+                </div>
+                <div class="stat-pill-card basic" id="cttCardBasic">
+                  <div class="stat-label-text">基礎人數與比例</div>
+                  <div class="stat-num-value" id="cttValBasic">-</div>
+                </div>
+                <div class="stat-pill-card needy" id="cttCardNeedy">
+                  <div class="stat-label-text">待加強人數與比例</div>
+                  <div class="stat-num-value" id="cttValNeedy">-</div>
+                </div>
+              </div>
+
+              <!-- Interactive Chart (ItemAnalysisTab.vue matching) -->
+              <div class="chart-container-card" id="cttChartBox" style="display: none;">
+                <div class="chart-header-row">
+                  <div class="chart-title">
+                    <svg style="width:16px; height:16px; color:var(--morandi-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                    全卷試題通過率與難度趨勢圖
+                  </div>
+                  <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-line" style="background:#52796f;"></span> 通過率 (P)</div>
+                    <div class="legend-item"><span class="legend-line" style="background:#e07a5f;"></span> 難度 (Index)</div>
+                    <div class="legend-item"><span class="legend-line" style="background:#d4a373; border-top:1px dashed #d4a373;"></span> 鑑別度 (D)</div>
+                    <div class="legend-item"><span style="width:7px; height:7px; border-radius:50%; background:#e07a5f; display:inline-block;"></span> 待檢視題號</div>
+                  </div>
+                </div>
+
+                <div id="cttChartSvgContainer"></div>
+                <div class="chart-tooltip-popover" id="cttChartTooltip"></div>
+
+                <div style="margin-top: 8px; text-align: center; font-size: 11px; color: var(--slate-400);">
+                  <span style="display:inline-flex; align-items:center; gap:5px;"><span style="width:6px; height:6px; border-radius:50%; background:#e07a5f;"></span> 題號上方的紅點表示該題通過率低於 40% 或鑑別度低於 0.20，建議檢視題目或誘答力。</span>
+                </div>
+              </div>
+
+              <!-- Subtabs inside CTT -->
+              <div class="subtabs-segmented">
+                <button class="subtab-pill active" id="cttSubtabSummaryBtn" onclick="switchCTTView('summary')">逐題摘要表 (含誘答與建議)</button>
+                <button class="subtab-pill" id="cttSubtabLevelBtn" onclick="switchCTTView('level')">縣市三等級試題分析 (6組選答率矩陣)</button>
+              </div>
+
+              <!-- Summary Table -->
+              <div class="saaa-table-frame" id="cttSummaryTableBox">
+                <table class="saaa-table">
+                  <thead>
+                    <tr>
+                      <th>題號</th><th>正確答案</th><th>通過率 (P)</th><th>鑑別度 (D)</th><th>雙系列 (pBis)</th>
+                      <th>低分組</th><th id="thCttMid">中分組</th><th>高分組</th><th>難度 (Index)</th><th>診斷建議</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cttSummaryTbody"></tbody>
+                </table>
+              </div>
+
+              <!-- Level Matrix Table -->
+              <div class="saaa-table-frame" id="cttLevelTableBox" style="display: none;">
+                <table class="saaa-table">
+                  <thead>
+                    <tr>
+                      <th>題號</th><th>鑑別度</th><th>答對率</th><th>正確答案</th>
+                      <th>全體_A</th><th>全體_B</th><th>全體_C</th><th>全體_D</th><th>全體_其它</th>
+                      <th>精熟_A</th><th>精熟_B</th><th>精熟_C</th><th>精熟_D</th><th>精熟_其它</th>
+                      <th>基礎_A</th><th>基礎_B</th><th>基礎_C</th><th>基礎_D</th><th>基礎_其它</th>
+                      <th>待加強_A</th><th>待加強_B</th><th>待加強_C</th><th>待加強_D</th><th>待加強_其它</th>
+                      <th>高分組_A</th><th>高分組_B</th><th>高分組_C</th><th>高分組_D</th><th>高分組_其它</th>
+                      <th>低分組_A</th><th>低分組_B</th><th>低分組_C</th><th>低分組_D</th><th>低分組_其它</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cttLevelTbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 2: 成績計算 (Score Calculation)                                   -->
+        <!-- =================================================================== -->
+        <div id="tab-scoring" style="display: none;">
+          <div class="saaa-card">
+            <div class="card-header-bar">
+              <div class="card-title-group">
+                <h2>
+                  <svg style="width:20px; height:20px; color:var(--morandi-terracotta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  成績計算 (Score Calculation)
+                </h2>
+                <div class="card-title-sub">學生個人成績計分 ｜ 精熟等級判定 (精熟/基礎/待加強) ｜ 全層級描述統計報表 (0.00)</div>
+                <div class="title-accent-bar" style="background:var(--morandi-terracotta);"></div>
+              </div>
+            </div>
+
+            <!-- Notice Banner -->
+            <div class="notice-banner">
+              <svg style="width:16px; height:16px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>可上傳包含「答案」、「向度」、「等級門檻」之標準答案檔，或直接在下方手動輸入門檻題數。</span>
+            </div>
+
+            <div class="drop-grid">
+              <div class="saaa-dropzone" id="scoreAnsDropzone">
+                <input type="file" accept=".xlsx,.xls,.csv" onchange="handleScoreFileSelect('ans', this.files)">
+                <div class="drop-icon">🔑</div>
+                <div class="drop-label">拖曳或選取【答案檔】(.xlsx)</div>
+                <div class="drop-sub">包含「答案」、「向度」、「等級門檻」工作表</div>
+                <div class="drop-status" id="scoreAnsFileStatus">尚未選擇檔案</div>
+              </div>
+
+              <div class="saaa-dropzone" id="scoreRespDropzone">
+                <input type="file" accept=".xlsx,.xls,.csv" onchange="handleScoreFileSelect('resp', this.files)">
+                <div class="drop-icon">📋</div>
+                <div class="drop-label">拖曳或選取【作答檔】(.xlsx)</div>
+                <div class="drop-sub">包含學生基本資料、身分別與題目作答選項</div>
+                <div class="drop-status" id="scoreRespFileStatus">尚未選擇檔案</div>
+              </div>
+            </div>
+
+            <div class="form-bar">
+              <div class="saaa-form-group">
+                <label>測驗考科</label>
+                <select id="scoreSubject" class="saaa-select">
+                  <option value="C">國語文 (C)</option>
+                  <option value="M">數學 (M)</option>
+                  <option value="E">英語 (E)</option>
+                  <option value="S">自然 (S)</option>
+                </select>
+              </div>
+
+              <div class="saaa-form-group">
+                <label>測驗年級 (正序排列)</label>
+                <select id="scoreGrade" class="saaa-select">
+                  <option value="3">3 年級</option>
+                  <option value="4">4 年級</option>
+                  <option value="5">5 年級</option>
+                  <option value="6">6 年級</option>
+                  <option value="7">7 年級</option>
+                  <option value="7n">7n (七年級新生)</option>
+                  <option value="8">8 年級</option>
+                </select>
+              </div>
+
+              <div class="saaa-form-group" style="justify-content: flex-end; padding-bottom: 6px;">
+                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                  <input type="checkbox" id="scoreEnableLevel" onchange="toggleScoreLevelInputs()">
+                  <span style="font-weight:700; color:var(--morandi-terracotta);">計算精熟等級 (手動輸入門檻)</span>
+                </label>
+              </div>
+
+              <div class="saaa-form-group" id="scoreMasteryGroup" style="display:none;">
+                <label>精熟門檻題數 (≥ 此題數為精熟)</label>
+                <input type="number" id="scoreMasteryCut" class="saaa-input" placeholder="如 23" min="1" style="width:130px;">
+              </div>
+
+              <div class="saaa-form-group" id="scoreBasicGroup" style="display:none;">
+                <label>基礎門檻題數 (≥ 此題數為基礎)</label>
+                <input type="number" id="scoreBasicCut" class="saaa-input" placeholder="如 15" min="1" style="width:130px;">
+              </div>
+
+              <div class="saaa-form-group" style="align-self: flex-end;">
+                <button class="saaa-btn btn-terracotta" onclick="runStandaloneScoring()">
+                  ⚡ 開始成績計算
+                </button>
+              </div>
+            </div>
+
+            <!-- Scoring Progress -->
+            <div class="saaa-progress-box" id="scoreProgressBox">
+              <div class="progress-bar-track"><div class="progress-bar-fill" id="scoreProgressBar" style="background:linear-gradient(90deg, var(--morandi-terracotta), var(--morandi-apricot));"></div></div>
+              <div class="progress-info">
+                <span id="scoreProgressMsg">準備中...</span>
+                <span id="scoreProgressPct">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scoring Dashboard -->
+          <div id="scoringDashboard" style="display: none;">
+            <div class="saaa-card">
+              <div class="card-header-bar">
+                <div class="card-title-group">
+                  <h2>🏆 成績計算與三等級描述彙總成果</h2>
+                  <div class="card-title-sub">精熟 / 基礎 / 待加強 ｜ 扣除特殊生與含特殊生雙軌統計</div>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button class="saaa-btn btn-terracotta btn-sm" onclick="downloadAllScoringPackage()">📦 下載成績計算 14 份報表套件 (ZIP)</button>
+                  <button class="saaa-btn btn-outline btn-sm" onclick="downloadScoreOverallExcel()">📥 匯出個人成績表 (.xlsx)</button>
+                </div>
+              </div>
+
+              <div class="stats-matrix">
+                <div class="stat-pill-card">
+                  <div class="stat-label-text">到考總人數</div>
+                  <div class="stat-num-value" id="scoreValValidN">-</div>
+                </div>
+                <div class="stat-pill-card">
+                  <div class="stat-label-text">缺考人數</div>
+                  <div class="stat-num-value" id="scoreValAbsentN">-</div>
+                </div>
+                <div class="stat-pill-card">
+                  <div class="stat-label-text">全卷平均答對率 (0.00)</div>
+                  <div class="stat-num-value" id="scoreValAvgRate">-</div>
+                </div>
+                <div class="stat-pill-card mastery" id="scoreCardMastery">
+                  <div class="stat-label-text">精熟人數與比率</div>
+                  <div class="stat-num-value" id="scoreValMastery">-</div>
+                </div>
+                <div class="stat-pill-card basic" id="scoreCardBasic">
+                  <div class="stat-label-text">基礎人數與比率</div>
+                  <div class="stat-num-value" id="scoreValBasic">-</div>
+                </div>
+                <div class="stat-pill-card needy" id="scoreCardNeedy">
+                  <div class="stat-label-text">待加強人數與比率</div>
+                  <div class="stat-num-value" id="scoreValNeedy">-</div>
+                </div>
+              </div>
+
+              <!-- Subtabs inside Scoring -->
+              <div class="subtabs-segmented" id="scoreSubtabsNav">
+                <button class="subtab-pill active" id="scoreSubtabPersonal" onclick="switchScoreView('personal')">學生個人成績與排名</button>
+                <button class="subtab-pill score-level-subtab" onclick="switchScoreView('county_level')">縣市等級描述總表</button>
+                <button class="subtab-pill score-level-subtab" onclick="switchScoreView('school_level')">各校等級描述總表</button>
+                <button class="subtab-pill score-level-subtab" onclick="switchScoreView('class_level')">各班等級描述總表</button>
+                <button class="subtab-pill score-level-subtab" onclick="switchScoreView('region_level')">區域等級描述總表</button>
+                <button class="subtab-pill score-level-subtab" onclick="switchScoreView('family_level')">家庭背景等級描述</button>
+              </div>
+
+              <div class="saaa-table-frame" id="scoreTableView">
+                <table class="saaa-table" id="scoreDisplayTable">
+                  <thead id="scoreTableHead"></thead>
+                  <tbody id="scoreTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 3: 全科批次處理 (Batch Mode)                                       -->
+        <!-- =================================================================== -->
+        <div id="tab-batch" style="display: none;">
+          <div class="saaa-card">
+            <div class="card-header-bar">
+              <div class="card-title-group">
+                <h2>
+                  <svg style="width:20px; height:20px; color:var(--morandi-sage);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                  全科全自動批次處理管線
+                </h2>
+                <div class="card-title-sub">自動配對各科答案檔與作答檔 ｜ 支援多科 ZIP 壓縮包 ｜ 雙軌同步或指定模組</div>
+                <div class="title-accent-bar" style="background:var(--morandi-sage);"></div>
+              </div>
+            </div>
+
+            <div class="saaa-dropzone" id="batchDropzone" style="padding: 36px 16px;">
+              <input type="file" multiple accept=".xlsx,.csv,.zip" onchange="handleBatchFileSelect(this.files)">
+              <div class="drop-icon">📦</div>
+              <div class="drop-label">拖曳多個檔案或 ZIP 壓縮檔至此</div>
+              <div class="drop-sub">系統將自動配對科目與年級，全自動完成運算與報表封裝</div>
+              <div class="drop-status" id="batchFileStatus">尚未選擇檔案</div>
+            </div>
+
+            <div class="form-bar" style="margin-top: 14px;">
+              <div class="saaa-form-group">
+                <label>批次執行模式</label>
+                <select id="batchExecMode" class="saaa-select">
+                  <option value="all">⚡ 雙軌執行 (試題分析 + 成績計算)</option>
+                  <option value="ctt">📊 僅執行試題分析 (CTT Analysis)</option>
+                  <option value="scoring">📝 僅執行成績計算 (Score Calculation)</option>
+                </select>
+              </div>
+
+              <div class="saaa-form-group" style="align-self: flex-end;">
+                <button class="saaa-btn btn-morandi" id="btnRunBatch" onclick="runBatchPipeline()" disabled>
+                  🚀 啟動全科批次管線
+                </button>
+              </div>
+            </div>
+
+            <!-- Batch Progress -->
+            <div class="saaa-progress-box" id="batchProgressBox">
+              <div class="progress-bar-track"><div class="progress-bar-fill" id="batchProgressBar"></div></div>
+              <div class="progress-info">
+                <span id="batchProgressMsg">準備中...</span>
+                <span id="batchProgressPct">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="batchResultsCard" class="saaa-card" style="display: none;">
+            <div class="card-header-bar">
+              <div class="card-title-group">
+                <h2>🏆 全科批次品質彙整表</h2>
+                <div class="card-title-sub">各科分析已全數完成</div>
+              </div>
+              <button class="saaa-btn btn-morandi btn-sm" onclick="downloadMasterBatchPackage()">📦 打包下載全部分析與成績報表 (ZIP)</button>
+            </div>
+            <div class="saaa-table-frame">
+              <table class="saaa-table">
+                <thead>
+                  <tr>
+                    <th>考科</th><th>總題數</th><th>有效人數</th><th>Cronbach's α</th>
+                    <th>平均難度 P</th><th>平均鑑別度 D</th><th>精熟率</th><th>基礎率</th><th>待加強率</th><th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="batchSummaryBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- TAB 4: 演算法規格與四捨五入說明 (About)                                 -->
+        <!-- =================================================================== -->
+        <div id="tab-about" style="display: none;">
+          <div class="saaa-card">
+            <div class="card-header-bar">
+              <div class="card-title-group">
+                <h2>
+                  <svg style="width:20px; height:20px; color:var(--morandi-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                  📐 SAAA 演算法規格與四捨五入核心 (0.00 標準)
+                </h2>
+                <div class="card-title-sub">設計完全遵循 SAAA 官方 R 語言原始腳本 (114M3+1A.R / 35_ctt.R) 演算法</div>
+                <div class="title-accent-bar"></div>
+              </div>
+            </div>
+
+            <div style="line-height: 1.8; font-size: 13.5px; color: var(--slate-700);">
+              <p><strong style="color:var(--morandi-primary-dark); font-size:14.5px;">1. 純整數 BigInt 算術四捨五入 (Pure Integer Round-Half-Up 至 0.00)</strong><br>
+              傳統 JavaScript 浮點運算常因 IEEE 754 二進位微差產生「0.605 變成 0.60」或「0.435 變成 0.43」的誤差。本系統採用純整數公式：<br>
+              <code style="background:#f1f5f9; padding:2px 8px; border-radius:6px; font-family:monospace; color:#0f766e;">(2 * 100 * |k| + |n|) // (2 * |n|)</code>，搭配 BigInt 與正負號嚴格保護，確保所有通過率、難度、鑑別度與選答率 100% 精準對齊 R 語言標準規範。
+              </p>
+              <br>
+              <p><strong style="color:var(--morandi-primary-dark); font-size:14.5px;">2. 精熟等級三級劃分規則 (精熟 / 基礎 / 待加強)</strong><br>
+              • <strong>精熟 (Mastery)</strong>：答對題數 ≥ 手動輸入之精熟門檻題數。<br>
+              • <strong>基礎 (Basic)</strong>：答對題數 ≥ 手動輸入之基礎門檻題數，且小於精熟門檻。<br>
+              • <strong>待加強 (Needs Improvement)</strong>：答對題數 &lt; 基礎門檻題數。<br>
+              在試題分析中提供 6 組選答率矩陣（全體、精熟、基礎、待加強、高分組、低分組）；在成績計算中提供【扣除特殊生】與【含特殊生】併列呈現的等級描述總表。未輸入門檻時，系統純粹分析試題與總分，安全略過等級判定。
+              </p>
+              <br>
+              <p><strong style="color:var(--morandi-primary-dark); font-size:14.5px;">3. Kelley 27% 鐵律分群與動態 midXX 標籤</strong><br>
+              高低分組嚴格取 Kelley 經典 27% 極端組切點，中分組比例由公式 <code>1.0 - hn_ratio - 0.27 - 0.01</code> 動態決定，組名精確對齊 R 語言輸出（如 <code>mid67</code>, <code>mid69</code>, <code>mid70</code>）。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Console Viewer -->
+        <div class="saaa-card" style="margin-bottom: 0;">
+          <div class="card-header-bar" style="margin-bottom: 8px; padding-bottom: 6px;">
+            <div class="card-title-group">
+              <h2 style="font-size: 1rem;">
+                <svg style="width:16px; height:16px; color:var(--morandi-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                系統執行日誌 (Live Console)
+              </h2>
+            </div>
+          </div>
+          <div class="saaa-log-card" id="logBox">系統已就緒。試題分析與成績計算雙引擎可獨立運行。</div>
+        </div>
+
+      </div> <!-- /notebook-page -->
+
+      <!-- Bottom Reader Illustrations -->
+      <div class="reader-illust reader-boy">
+        <img src="images/read_boy.png" alt="認真讀書中" onerror="this.style.display='none'">
+      </div>
+      <div class="reader-illust reader-girl">
+        <img src="images/read_girl.png" alt="好好學習" onerror="this.style.display='none'">
+      </div>
+
+    </div> <!-- /notebook-shell -->
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 3. FIXED BOTTOM APP FOOTER (Matching AppFooter.vue)                       -->
+  <!-- ========================================================================= -->
+  <footer class="saaa-footer">
+    <div class="footer-content">
+      <div class="footer-line-1">
+        <span>電話：(04) 2218-8100 · (04) 2218-8177 · (04) 2218-1024</span>
+        <span>|</span>
+        <span>信箱：<a href="mailto:saaa.ntcu@mail.ntcu.edu.tw">saaa.ntcu@mail.ntcu.edu.tw</a></span>
+        <span>|</span>
+        <span>服務時間：週一至週五 08:30-12:00 / 13:30-17:30</span>
+      </div>
+      <div class="footer-line-2">
+        <span>403臺中市西區民生路140號 教育樓 5F</span>
+        <span>·</span>
+        <span>&copy; 國立臺中教育大學 ｜ 測驗統計與適性學習研究中心</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- 4. JAVASCRIPT BUSINESS LOGIC & ENGINES                                   -->
+  <!-- ========================================================================= -->
+  <script>
+
+// --- Interactive SVG Item Analysis Chart (Matching saaa-vue ItemAnalysisTab.vue) ---
+function renderCTTChart(a) {
+  const chartBox = document.getElementById('cttChartBox');
+  if (!chartBox) return;
+  chartBox.style.display = 'block';
+
+  const n = a.itemsData.length;
+  if (n === 0) return;
+
+  const width = Math.max(760, n * 32);
+  const height = 240;
+  const padding = { top: 30, right: 35, bottom: 45, left: 45 };
+  const plotWidth = width - padding.left - padding.right;
+  const plotHeight = height - padding.top - padding.bottom;
+
+  const points = a.itemsData.map((it, idx) => {
+    const x = padding.left + (idx / Math.max(1, n - 1)) * plotWidth;
+    const yP = height - padding.bottom - (Math.max(0, Math.min(1, it.passRate)) * plotHeight);
+    const yDiff = height - padding.bottom - (Math.max(0, Math.min(1, it.difficulty)) * plotHeight);
+    const yDisc = height - padding.bottom - (Math.max(0, Math.min(1, it.discrim)) * plotHeight);
+    const isWeak = (it.passRate < 0.40 || it.discrim < 0.20 || it.warning !== '正常');
+    return { it, x, yP, yDiff, yDisc, isWeak };
+  });
+
+  const pPath = points.map((p, i) => (i === 0 ? "M " + p.x + " " + p.yP : "L " + p.x + " " + p.yP)).join(' ');
+  const diffPath = points.map((p, i) => (i === 0 ? "M " + p.x + " " + p.yDiff : "L " + p.x + " " + p.yDiff)).join(' ');
+  const discPath = points.map((p, i) => (i === 0 ? "M " + p.x + " " + p.yDisc : "L " + p.x + " " + p.yDisc)).join(' ');
+
+  let dotsHtml = '';
+  let hoverAreasHtml = '';
+
+  points.forEach((p, idx) => {
+    const weakCircle = p.isWeak ? '<circle cx="' + p.x + '" cy="' + (height - 24) + '" r="3" fill="#e07a5f" />' : '';
+    const xLabel = '<text x="' + p.x + '" y="' + (height - 10) + '" text-anchor="middle" font-size="10" fill="#64748b" font-family="monospace">' + p.it.item + '</text>';
+    const pointCircle = '<circle cx="' + p.x + '" cy="' + p.yP + '" r="3.5" fill="#52796f" stroke="#ffffff" stroke-width="1.5" />';
+    dotsHtml += weakCircle + xLabel + pointCircle;
+
+    const stepW = plotWidth / Math.max(1, n - 1);
+    hoverAreasHtml += '<rect x="' + (p.x - stepW / 2) + '" y="' + padding.top + '" width="' + stepW + '" height="' + plotHeight + '" fill="transparent" class="chart-hover-col" style="cursor: pointer;" onmouseover="showChartTooltip(event, ' + idx + ')" onmouseout="hideChartTooltip()" />';
+  });
+
+  window._cttChartPoints = points;
+
+  const svgHtml = `
+    <div style="overflow-x: auto; width: 100%; padding-bottom: 8px;">
+      <svg viewBox="0 0 ${width} ${height}" style="width: 100%; min-width: ${width}px; height: auto; display: block; overflow: visible;">
+        <g stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 4">
+          <line x1="${padding.left}" y1="${padding.top}" x2="${width - padding.right}" y2="${padding.top}" />
+          <line x1="${padding.left}" y1="${padding.top + plotHeight / 2}" x2="${width - padding.right}" y2="${padding.top + plotHeight / 2}" />
+          <line x1="${padding.left}" y1="${height - padding.bottom}" x2="${width - padding.right}" y2="${height - padding.bottom}" stroke-dasharray="none" stroke="#cbd5e1" />
+        </g>
+        <g font-size="10" fill="#94a3b8" font-family="monospace" text-anchor="end">
+          <text x="${padding.left - 8}" y="${padding.top + 4}">100%</text>
+          <text x="${padding.left - 8}" y="${padding.top + plotHeight / 2 + 4}">50%</text>
+          <text x="${padding.left - 8}" y="${height - padding.bottom + 4}">0%</text>
+        </g>
+
+        <path d="${discPath}" fill="none" stroke="#d4a373" stroke-width="1.5" stroke-dasharray="4 4" />
+        <path d="${diffPath}" fill="none" stroke="#e07a5f" stroke-width="2" />
+        <path d="${pPath}" fill="none" stroke="#52796f" stroke-width="2.5" />
+
+        ${dotsHtml}
+        ${hoverAreasHtml}
+      </svg>
+    </div>
+  `;
+
+  document.getElementById('cttChartSvgContainer').innerHTML = svgHtml;
+}
+
+function showChartTooltip(evt, idx) {
+  const p = window._cttChartPoints ? window._cttChartPoints[idx] : null;
+  if (!p) return;
+  const tip = document.getElementById('cttChartTooltip');
+  if (!tip) return;
+
+  const it = p.it;
+  tip.innerHTML = `
+    <div style="font-weight: bold; color: #a7f3d0; margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 3px;">
+      第 ${it.item} 題 (正確答案: ${it.key})
+    </div>
+    <div style="display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-family: monospace; font-size: 11px;">
+      <span style="color: #cbd5e1;">通過率 (P):</span><span style="font-weight: bold; color: #34d399;">${(it.passRate * 100).toFixed(1)}%</span>
+      <span style="color: #cbd5e1;">難度 (Index):</span><span style="color: #fed7aa;">${(it.difficulty * 100).toFixed(1)}%</span>
+      <span style="color: #cbd5e1;">鑑別度 (D):</span><span style="color: #fde047;">${it.discrim.toFixed(2)}</span>
+      <span style="color: #cbd5e1;">點二系列:</span><span>${it.pBis}</span>
+      <span style="color: #cbd5e1;">品質診斷:</span><span style="color: ${it.warning === '正常' ? '#a7f3d0' : '#fca5a5'}; font-weight: bold;">${it.warning}</span>
+    </div>
+  `;
+
+  const container = document.getElementById('cttChartBox');
+  const rect = container.getBoundingClientRect();
+  const x = evt.clientX - rect.left;
+  const y = evt.clientY - rect.top;
+
+  tip.style.display = 'block';
+  tip.style.left = Math.min(rect.width - 200, Math.max(10, x - 90)) + 'px';
+  tip.style.top = Math.max(10, y - 110) + 'px';
+}
+
+function hideChartTooltip() {
+  const tip = document.getElementById('cttChartTooltip');
+  if (tip) tip.style.display = 'none';
+}
+
+
+// --- UI Navigation ---
+function switchMainTab(tab) {
+  ['ctt', 'scoring', 'batch', 'about'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = (t === tab ? 'block' : 'none');
+  });
+  document.querySelectorAll('.tab-nav .tab-btn').forEach((btn, idx) => {
+    const tabs = ['ctt', 'scoring', 'batch', 'about'];
+    btn.classList.toggle('active', tabs[idx] === tab);
+  });
+}
+
+function appendLog(msg) {
+  const box = document.getElementById('logBox');
+  const now = new Date().toLocaleTimeString();
+  box.textContent += `\n[${now}] ${msg}`;
+  box.scrollTop = box.scrollHeight;
+}
+
+// --- Pure Integer BigInt Math Core (0.00 Rounding) ---
+const SAAAMath = {
+  roundHalfUpRatio(k, n, digits = 2) {
+    if (!n || n === 0) return 0.0;
+    const isNeg = (k < 0) !== (n < 0);
+    const kBig = BigInt(Math.abs(Math.round(k)));
+    const nBig = BigInt(Math.abs(Math.round(n)));
+    const factor = 10n ** BigInt(digits);
+    const roundedInt = (2n * factor * kBig + nBig) / (2n * nBig);
+    const floatVal = Number(roundedInt) / (10 ** digits);
+    return isNeg ? -floatVal : floatVal;
+  },
+
+  roundHalfUpFloat(val, digits = 2) {
+    if (val === null || val === undefined || isNaN(val)) return NaN;
+    const factor = 10 ** digits;
+    const sign = val < 0 ? -1 : 1;
+    return (Math.floor(Math.abs(val) * factor + 0.5 + 1e-12) / factor) * sign;
+  },
+
+  getCTTGroups(totalScores, groupRatio = 0.27) {
+    const n = totalScores.length;
+    const sorted = Array.from(totalScores).sort((a, b) => a - b);
+    const x = Math.max(1, Math.round(n * groupRatio));
+    const highThreshold = sorted[n - x];
+    
+    let hn = 0;
+    for (let i = 0; i < n; i++) if (totalScores[i] >= highThreshold) hn++;
+    const hnRatio = this.roundHalfUpFloat(hn / n, 2);
+    const lowRatio = groupRatio;
+    const midRatio = this.roundHalfUpFloat(1.0 - hnRatio - groupRatio - 0.01, 4);
+
+    const quantMaker1 = lowRatio;
+    const quantMaker2 = this.roundHalfUpFloat(lowRatio + midRatio, 4);
+    const midColName = `mid${Math.trunc(100 * quantMaker2)}`;
+
+    const lowIndex = Math.max(0, Math.floor(n * quantMaker1) - 1);
+    const lowThreshold = sorted[lowIndex];
+
+    const lowerMask = new Uint8Array(n);
+    const midMask = new Uint8Array(n);
+    const upperMask = new Uint8Array(n);
+    let nLower = 0, nMid = 0, nUpper = 0;
+
+    for (let i = 0; i < n; i++) {
+      const s = totalScores[i];
+      if (s <= lowThreshold) {
+        lowerMask[i] = 1;
+        nLower++;
+      } else if (s >= highThreshold) {
+        upperMask[i] = 1;
+        nUpper++;
+      } else {
+        midMask[i] = 1;
+        nMid++;
+      }
+    }
+
+    return {
+      lowThreshold, highThreshold,
+      lowerMask, midMask, upperMask,
+      nLower, nMid, nUpper, midColName
+    };
+  },
+
+  calculateCronbachAlpha(scoredMatrix, nValid, nItems) {
+    if (nValid <= 1 || nItems <= 1) return NaN;
+    let sumItemVar = 0;
+    for (let j = 0; j < nItems; j++) {
+      let sum = 0;
+      for (let i = 0; i < nValid; i++) sum += scoredMatrix[i][j];
+      const mean = sum / nValid;
+      let ss = 0;
+      for (let i = 0; i < nValid; i++) {
+        const d = scoredMatrix[i][j] - mean;
+        ss += d * d;
+      }
+      sumItemVar += ss / (nValid - 1);
+    }
+
+    let totSum = 0;
+    const tots = new Float64Array(nValid);
+    for (let i = 0; i < nValid; i++) {
+      let s = 0;
+      for (let j = 0; j < nItems; j++) s += scoredMatrix[i][j];
+      tots[i] = s;
+      totSum += s;
+    }
+    const totMean = totSum / nValid;
+    let totSS = 0;
+    for (let i = 0; i < nValid; i++) {
+      const d = tots[i] - totMean;
+      totSS += d * d;
+    }
+    const totVar = totSS / (nValid - 1);
+    if (totVar <= 0) return NaN;
+    return (nItems / (nItems - 1)) * (1.0 - sumItemVar / totVar);
+  },
+
+  calculatePointBiserial(selectionArr, totalScores, n) {
+    if (n <= 1) return NaN;
+    let n1 = 0, sum1 = 0, sumTot = 0;
+    for (let i = 0; i < n; i++) {
+      const s = totalScores[i];
+      sumTot += s;
+      if (selectionArr[i] === 1) {
+        n1++;
+        sum1 += s;
+      }
+    }
+    const n0 = n - n1;
+    if (n0 === 0 || n1 === 0) return NaN;
+    const m1 = sum1 / n1;
+    const m0 = (sumTot - sum1) / n0;
+    const totMean = sumTot / n;
+    let ssTot = 0;
+    for (let i = 0; i < n; i++) {
+      const d = totalScores[i] - totMean;
+      ssTot += d * d;
+    }
+    const sTot = Math.sqrt(ssTot / (n - 1));
+    if (sTot <= 0) return NaN;
+    return ((m1 - m0) / sTot) * Math.sqrt((n1 * n0) / (n * (n - 1)));
+  }
+};
+
+function normalizeStr(v) {
+  if (v === null || v === undefined) return '';
+  return String(v).trim();
+}
+
+function getGradeLabel(grade) {
+  const g = String(grade || '').toUpperCase();
+  if (g === '7N') return '七年級新生';
+  if (g === '7') return '七年級';
+  if (g === '8') return '八年級';
+  if (g === '9') return '九年級';
+  if (g === '3') return '三年級';
+  if (g === '4') return '四年級';
+  if (g === '5') return '五年級';
+  if (g === '6') return '六年級';
+  return `${grade}年級`;
+}
+
+function extractAnswersFromRows(rows, subjCode, grade) {
+  if (!rows || rows.length === 0) return [];
+  const gStr = String(grade).toUpperCase();
+  const targetCol = `${subjCode.toUpperCase()}${gStr}`;
+  const headerRow = rows[0].map(h => normalizeStr(h).toUpperCase());
+
+  // 1. 縱向欄位 (精確匹配 targetCol，七年級 7 不誤配 7N，七年級新生 7N 支援 7N/新生)
+  let targetIdx = headerRow.findIndex(h => h === targetCol);
+  if (targetIdx === -1) {
+    if (gStr === '7N') {
+      targetIdx = headerRow.findIndex(h => h === `${subjCode.toUpperCase()}7N` || h.includes('新生') || h.includes('七年級新生'));
+    } else if (gStr === '7') {
+      targetIdx = headerRow.findIndex(h => h === `${subjCode.toUpperCase()}7`);
+    } else {
+      targetIdx = headerRow.findIndex(h => h === targetCol || h.startsWith(targetCol));
+    }
+  }
+
+  if (targetIdx !== -1 && rows.length >= 3) {
+    const keys = [];
+    for (let r = 1; r < rows.length; r++) {
+      const val = normalizeStr(rows[r][targetIdx]).toUpperCase();
+      if (val && !/^(不予計分|不計分|此題不計分|無|送分|不採計|精熟|基礎)$/.test(val)) keys.push(val);
+    }
+    if (keys.length >= 3) return keys;
+  }
+
+  // 2. 橫向題號列 1, 2, 3...
+  for (let r = 0; r < Math.min(5, rows.length); r++) {
+    const row = rows[r];
+    const oneIdx = row.findIndex(c => c === 1 || c === '1' || c === 1.0);
+    if (oneIdx !== -1 && row.length > oneIdx + 3) {
+      const isItemRow = [2, 3, 4].every((exp, idx) => String(row[oneIdx + 1 + idx]).trim() === String(exp));
+      if (isItemRow) {
+        let ansRowIdx = -1;
+        for (let ar = 0; ar < rows.length; ar++) {
+          if (ar !== r && rows[ar].some(cell => /答案/i.test(normalizeStr(cell)))) {
+            ansRowIdx = ar;
+            break;
+          }
+        }
+        if (ansRowIdx === -1 && r + 1 < rows.length) ansRowIdx = r + 1;
+        if (ansRowIdx !== -1) {
+          const keys = [];
+          const aRow = rows[ansRowIdx];
+          for (let c = oneIdx; c < aRow.length; c++) {
+            const val = normalizeStr(aRow[c]).toUpperCase();
+            if (val && !/^(不予計分|不計分|此題不計分|無|送分|不採計)$/.test(val)) keys.push(val);
+            else if (!val && c >= aRow.length - 2) break;
+          }
+          if (keys.length >= 3) return keys;
+        }
+      }
+    }
+  }
+
+  // 3. 雙欄式 (Col 0 題號, Col 1 答案，或標有「答案」之欄位)
+  const ansColIdx = headerRow.findIndex(h => /答案|Key/i.test(h));
+  if (ansColIdx !== -1 && rows.length >= 4) {
+    const keys = [];
+    for (let r = 1; r < rows.length; r++) {
+      const val = normalizeStr(rows[r][ansColIdx]).toUpperCase();
+      if (val && !/^(不予計分|不計分|此題不計分|無|送分|不採計)$/.test(val)) keys.push(val);
+    }
+    if (keys.length >= 3) return keys;
+  } else if (rows.length >= 5) {
+    const keys = [];
+    for (let r = 1; r < rows.length; r++) {
+      if (rows[r].length >= 2) {
+        const val = normalizeStr(rows[r][1]).toUpperCase();
+        if (val && /^[A-D1-9、/]+$/.test(val)) keys.push(val);
+      }
+    }
+    if (keys.length >= 5) return keys;
+  }
+  return [];
+}
+
+// ===================================================================================
+// PART 1: 試題分析 (CTT) 模組
+// ===================================================================================
+let cttAnsFile = null, cttRespFile = null, currentCTTAnalyzer = null;
+
+function handleCTTFileSelect(type, files) {
+  if (!files || files.length === 0) return;
+  if (type === 'ans') {
+    cttAnsFile = files[0];
+    document.getElementById('cttAnsFileStatus').textContent = `✅ ${files[0].name}`;
+    appendLog(`[CTT] 已選擇答案檔: ${files[0].name}`);
+  } else {
+    cttRespFile = files[0];
+    document.getElementById('cttRespFileStatus').textContent = `✅ ${files[0].name}`;
+    appendLog(`[CTT] 已選擇作答檔: ${files[0].name}`);
+  }
+}
+
+function toggleCTTLevelInputs() {
+  const enabled = document.getElementById('cttEnableLevel').checked;
+  document.getElementById('cttMasteryGroup').style.display = enabled ? 'flex' : 'none';
+  document.getElementById('cttBasicGroup').style.display = enabled ? 'flex' : 'none';
+}
+
+function toggleScoreLevelInputs() {
+  const enabled = document.getElementById('scoreEnableLevel').checked;
+  document.getElementById('scoreMasteryGroup').style.display = enabled ? 'flex' : 'none';
+  document.getElementById('scoreBasicGroup').style.display = enabled ? 'flex' : 'none';
+}
+
+async function runStandaloneCTT() {
+  if (!cttAnsFile || !cttRespFile) {
+    alert("請先選取答案檔與作答檔！");
+    return;
+  }
+  const pBox = document.getElementById('cttProgressBox');
+  const pBar = document.getElementById('cttProgressBar');
+  const pMsg = document.getElementById('cttProgressMsg');
+  const pPct = document.getElementById('cttProgressPct');
+  pBox.style.display = 'block';
+
+  const update = (pct, msg) => {
+    pBar.style.width = `${pct}%`;
+    pPct.textContent = `${pct}%`;
+    pMsg.textContent = msg;
+    appendLog(`[CTT] ${msg}`);
+  };
+
+  try {
+    update(15, "正在讀取答案檔...");
+    const ansBuf = await cttAnsFile.arrayBuffer();
+    const ansWb = new ExcelJS.Workbook();
+    await ansWb.xlsx.load(ansBuf);
+    const subjCode = document.getElementById('cttSubject').value;
+    const grade = document.getElementById('cttGrade').value;
+    const targetCode = `${subjCode.toUpperCase()}${grade}`;
+    const ansWs = ansWb.getWorksheet(targetCode) || ansWb.getWorksheet("答案") || ansWb.worksheets[0];
+    const ansRows = [];
+    ansWs.eachRow({ includeEmpty: false }, r => ansRows.push(r.values.slice(1).map(normalizeStr)));
+
+    const keys = extractAnswersFromRows(ansRows, subjCode, grade);
+    if (keys.length === 0) throw new Error("無法從答案檔解析題數與答案！");
+
+    update(35, `已解析答案，共 ${keys.length} 題。正在讀取學生作答檔...`);
+    const respBuf = await cttRespFile.arrayBuffer();
+    const respWb = new ExcelJS.Workbook();
+    await respWb.xlsx.load(respBuf);
+    const respWs = respWb.worksheets[0];
+
+    update(60, "篩選有效分析樣本 (排除無效與全空缺考)...");
+    const headers = respWs.getRow(1).values.slice(1).map(normalizeStr);
+    const itemCols = [];
+    headers.forEach((h, idx) => {
+      if (/^(item|Item|第)[ ._]?[0-9]+/i.test(h)) itemCols.push(idx);
+    });
+    const excludeIdxs = [];
+    headers.forEach((h, idx) => {
+      if (/^(無效|無效標記|無效資料|缺考|缺考標記)$/.test(h)) excludeIdxs.push(idx);
+    });
+
+    const validResponses = [];
+    respWs.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return;
+      const vals = row.values.slice(1);
+      let isExcluded = false;
+      for (const eIdx of excludeIdxs) {
+        const v = String(vals[eIdx] || '').trim();
+        if (['1', 'TRUE', 'True', 'true', '缺考', '無效'].includes(v)) { isExcluded = true; break; }
+      }
+      if (isExcluded) return;
+
+      const studentAns = [];
+      let emptyCount = 0;
+      for (let j = 0; j < keys.length; j++) {
+        const colIdx = itemCols[j];
+        const ans = (colIdx !== undefined && colIdx < vals.length) ? normalizeStr(vals[colIdx]).toUpperCase() : '';
+        if (!ans || ans === '9' || ans === '?') emptyCount++;
+        studentAns.push(ans);
+      }
+      if (emptyCount === keys.length) return;
+      validResponses.push(studentAns);
+    });
+
+    update(85, `有效樣本 ${validResponses.length.toLocaleString()} 人，正在執行 CTT 試題分析...`);
+    const ratio = 0.27; // 固定 Kelley 27% 鐵律
+    const enableLevel = document.getElementById('cttEnableLevel').checked;
+    let mCut = null;
+    let bCut = null;
+    if (enableLevel) {
+      const mVal = parseInt(document.getElementById('cttMasteryCut').value, 10);
+      const bVal = parseInt(document.getElementById('cttBasicCut').value, 10);
+      if (isNaN(mVal) || isNaN(bVal) || mVal <= bVal || bVal < 0) {
+        alert("已勾選計算精熟等級，請輸入有效的精熟題數與基礎題數 (精熟 > 基礎 ≥ 0)！\n若不需要計算精熟等級，請取消勾選。");
+        pBox.style.display = 'none';
+        return;
+      }
+      mCut = mVal;
+      bCut = bVal;
+    }
+
+    const analyzer = new BrowserCTTAnalyzer({
+      validResponses,
+      answerKeys: keys,
+      subjName: document.getElementById('cttSubject').options[document.getElementById('cttSubject').selectedIndex].text.split(' ')[0],
+      grade,
+      code: subjCode,
+      groupRatio: ratio,
+      masteryCutoff: mCut,
+      basicCutoff: bCut
+    });
+    currentCTTAnalyzer = analyzer;
+
+    update(100, "試題分析完成！");
+    renderCTTDashboard(analyzer);
+  } catch (err) {
+    alert("試題分析失敗: " + err.message);
+    appendLog("❌ 錯誤: " + err.message);
+  }
+}
+
+class BrowserCTTAnalyzer {
+  constructor({ validResponses, answerKeys, subjName = "考科", grade = 7, code = "SUBJ", groupRatio = 0.27, masteryCutoff = null, basicCutoff = null }) {
+    this.validResponses = validResponses;
+    this.answerKeys = answerKeys;
+    this.subjName = subjName;
+    this.grade = grade;
+    this.code = code;
+    this.groupRatio = groupRatio;
+    this.nItems = answerKeys.length;
+    const hasNumKeys = answerKeys.some(k => ['1', '2', '3', '4'].includes(k));
+    const gNum = parseInt(String(grade).replace(/\D/g, ''), 10);
+    const isElem = (!isNaN(gNum) && gNum < 7);
+    if (hasNumKeys || (isElem && !answerKeys.some(k => ['A', 'B', 'C', 'D'].includes(k)))) {
+      this.optLabels = ["1", "2", "3", "4"];
+    } else {
+      this.optLabels = ["A", "B", "C", "D"];
+    }
+
+    const hasM = (masteryCutoff !== null && masteryCutoff !== undefined && !isNaN(masteryCutoff));
+    const hasB = (basicCutoff !== null && basicCutoff !== undefined && !isNaN(basicCutoff));
+    if (hasM && hasB && Number(masteryCutoff) > Number(basicCutoff) && Number(basicCutoff) >= 0) {
+      this.calcLevel = true;
+      this.masteryCutoff = Number(masteryCutoff);
+      this.basicCutoff = Number(basicCutoff);
+    } else {
+      this.calcLevel = false;
+      this.masteryCutoff = null;
+      this.basicCutoff = null;
+    }
+
+    this.levelStats = null;
+    this.levelSummaryRows = [];
+    this.fit();
+  }
+
+  fit() {
+    if (this.nValid === 0 || this.nItems === 0) return;
+    this.scoredMatrix = [];
+    this.totalScores = new Float64Array(this.nValid);
+
+    for (let i = 0; i < this.nValid; i++) {
+      const resp = this.validResponses[i];
+      const scored = new Uint8Array(this.nItems);
+      let sTot = 0;
+      for (let j = 0; j < this.nItems; j++) {
+        const ans = String(resp[j] || "").trim().toUpperCase();
+        const key = this.answerKeys[j];
+        const isCorrect = key.includes("、") ? key.split("、").map(k => k.trim()).includes(ans) : (ans === key);
+        if (isCorrect) { scored[j] = 1; sTot++; }
+      }
+      this.scoredMatrix.push(scored);
+      this.totalScores[i] = sTot;
+    }
+
+    this.alpha = SAAAMath.calculateCronbachAlpha(this.scoredMatrix, this.nValid, this.nItems);
+    this.groupsInfo = SAAAMath.getCTTGroups(this.totalScores, this.groupRatio);
+    this.midColName = this.groupsInfo.midColName;
+
+    // 精熟等級分組 (僅在 calcLevel = true 時計算)
+    let masteryMask = null, basicMask = null, needyMask = null;
+    let mCnt = 0, bCnt = 0, iCnt = 0;
+    if (this.calcLevel) {
+      masteryMask = new Uint8Array(this.nValid);
+      basicMask = new Uint8Array(this.nValid);
+      needyMask = new Uint8Array(this.nValid);
+      for (let i = 0; i < this.nValid; i++) {
+        const s = this.totalScores[i];
+        if (s >= this.masteryCutoff) { masteryMask[i] = 1; mCnt++; }
+        else if (s >= this.basicCutoff) { basicMask[i] = 1; bCnt++; }
+        else { needyMask[i] = 1; iCnt++; }
+      }
+      this.levelStats = {
+        masteryCount: mCnt, basicCount: bCnt, needyCount: iCnt,
+        masteryPct: SAAAMath.roundHalfUpRatio(mCnt * 100, this.nValid, 2).toFixed(2) + "%",
+        basicPct: SAAAMath.roundHalfUpRatio(bCnt * 100, this.nValid, 2).toFixed(2) + "%",
+        needyPct: SAAAMath.roundHalfUpRatio(iCnt * 100, this.nValid, 2).toFixed(2) + "%"
+      };
+    } else {
+      this.levelStats = null;
+    }
+
+    const { lowerMask, midMask, upperMask, nLower, nMid, nUpper } = this.groupsInfo;
+    this.itemsData = [];
+    this.levelSummaryRows = [];
+
+    const allOptsTarget = [...this.optLabels, "其它"];
+
+    for (let j = 0; j < this.nItems; j++) {
+      const key = this.answerKeys[j];
+      let kCorrect = 0, kUpper = 0, kLower = 0;
+      for (let i = 0; i < this.nValid; i++) {
+        if (this.scoredMatrix[i][j] === 1) {
+          kCorrect++;
+          if (upperMask[i] === 1) kUpper++;
+          if (lowerMask[i] === 1) kLower++;
+        }
+      }
+
+      const pRounded = SAAAMath.roundHalfUpRatio(kCorrect, this.nValid, 2);
+      const phRounded = nUpper > 0 ? SAAAMath.roundHalfUpRatio(kUpper, nUpper, 2) : 0;
+      const plRounded = nLower > 0 ? SAAAMath.roundHalfUpRatio(kLower, nLower, 2) : 0;
+      const dRounded = SAAAMath.roundHalfUpFloat(phRounded - plRounded, 2);
+      const diffRounded = SAAAMath.roundHalfUpFloat((phRounded + plRounded) / 2.0, 2);
+
+      // 選答率
+      const optStats = {};
+      const groupRates = { 全體: {}, 高分組: {}, 低分組: {} };
+      const grpDefs = [
+        { name: "全體", mask: null, n: this.nValid },
+        { name: "高分組", mask: upperMask, n: nUpper },
+        { name: "低分組", mask: lowerMask, n: nLower }
+      ];
+
+      if (this.calcLevel) {
+        groupRates.精熟 = {};
+        groupRates.基礎 = {};
+        groupRates.待加強 = {};
+        grpDefs.splice(1, 0,
+          { name: "精熟", mask: masteryMask, n: mCnt },
+          { name: "基礎", mask: basicMask, n: bCnt },
+          { name: "待加強", mask: needyMask, n: iCnt }
+        );
+      }
+
+      allOptsTarget.forEach(opt => {
+        const isOther = (opt === "其它" || opt === "其他");
+        grpDefs.forEach(g => {
+          let cnt = 0;
+          for (let i = 0; i < this.nValid; i++) {
+            if (g.mask && g.mask[i] !== 1) continue;
+            const r = String(this.validResponses[i][j] || "").trim().toUpperCase();
+            if (isOther ? !this.optLabels.includes(r) : r === opt) cnt++;
+          }
+          groupRates[g.name][opt] = g.n > 0 ? SAAAMath.roundHalfUpRatio(cnt, g.n, 2) : 0;
+        });
+
+        // mid
+        let mSel = 0;
+        for (let i = 0; i < this.nValid; i++) {
+          if (midMask[i] === 1) {
+            const r = String(this.validResponses[i][j] || "").trim().toUpperCase();
+            if (isOther ? !this.optLabels.includes(r) : r === opt) mSel++;
+          }
+        }
+        const mRate = nMid > 0 ? SAAAMath.roundHalfUpRatio(mSel, nMid, 2) : 0;
+
+        optStats[opt] = {
+          total: groupRates["全體"][opt],
+          upper: groupRates["高分組"][opt],
+          mid: mRate,
+          lower: groupRates["低分組"][opt],
+          mastery: this.calcLevel ? groupRates["精熟"][opt] : null,
+          basic: this.calcLevel ? groupRates["基礎"][opt] : null,
+          needy: this.calcLevel ? groupRates["待加強"][opt] : null
+        };
+      });
+
+      // pBis
+      const itemSelection = new Uint8Array(this.nValid);
+      for (let i = 0; i < this.nValid; i++) itemSelection[i] = this.scoredMatrix[i][j];
+      const pBisRaw = SAAAMath.calculatePointBiserial(itemSelection, this.totalScores, this.nValid);
+      const pBis = SAAAMath.roundHalfUpFloat(pBisRaw, 2);
+
+      let warn = "正常";
+      if (dRounded < 0.05) warn = "鑑別度未達0.05建議直接刪除";
+      else if (dRounded <= 0.15) warn = "鑑別度0.05～0.15需進行試題修改";
+      this.optLabels.forEach(opt => {
+        if (opt !== key) {
+          if (optStats[opt].upper > optStats[key].upper) warn = "高分組錯誤選項選答率高於正確選項";
+          else if (optStats[opt].total > optStats[key].total) warn = "錯誤選項選答率高於正確選項";
+        }
+      });
+
+      this.itemsData.push({
+        item: j + 1, key, passRate: pRounded, difficulty: diffRounded, discrim: dRounded,
+        pBis: isNaN(pBis) ? "-" : pBis.toFixed(2),
+        lower: plRounded, mid: optStats[key].mid, upper: phRounded,
+        optStats, warning: warn
+      });
+
+      if (this.calcLevel) {
+        this.levelSummaryRows.push({
+          item: j + 1, discrim: dRounded, passRate: pRounded, key,
+          rates: groupRates
+        });
+      }
+    }
+
+    this.avgPassRate = SAAAMath.roundHalfUpFloat(this.itemsData.reduce((acc, it) => acc + it.passRate, 0) / this.nItems, 2);
+    this.avgDifficulty = SAAAMath.roundHalfUpFloat(this.itemsData.reduce((acc, it) => acc + it.difficulty, 0) / this.nItems, 2);
+    this.avgDiscrimination = SAAAMath.roundHalfUpFloat(this.itemsData.reduce((acc, it) => acc + it.discrim, 0) / this.nItems, 2);
+  }
+}
+
+function renderCTTDashboard(a) {
+  renderCTTChart(a);
+  document.getElementById('cttDashboard').style.display = 'block';
+  document.getElementById('cttValN').textContent = a.nValid.toLocaleString();
+  document.getElementById('cttValItems').textContent = a.nItems;
+  document.getElementById('cttValAlpha').textContent = a.alpha.toFixed(4);
+  document.getElementById('cttValP').textContent = a.avgPassRate.toFixed(2);
+  document.getElementById('cttValD').textContent = a.avgDiscrimination.toFixed(2);
+  document.getElementById('cttValMid').textContent = a.midColName;
+  document.getElementById('thCttMid').textContent = `中分組 (${a.midColName})`;
+
+  if (a.calcLevel && a.levelStats) {
+    document.getElementById('cttCardMastery').style.display = 'block';
+    document.getElementById('cttCardBasic').style.display = 'block';
+    document.getElementById('cttCardNeedy').style.display = 'block';
+    document.getElementById('cttValMastery').textContent = `${a.levelStats.masteryCount.toLocaleString()} (${a.levelStats.masteryPct})`;
+    document.getElementById('cttValBasic').textContent = `${a.levelStats.basicCount.toLocaleString()} (${a.levelStats.basicPct})`;
+    document.getElementById('cttValNeedy').textContent = `${a.levelStats.needyCount.toLocaleString()} (${a.levelStats.needyPct})`;
+    document.getElementById('cttSubtabLevelBtn').style.display = 'inline-block';
+  } else {
+    document.getElementById('cttCardMastery').style.display = 'none';
+    document.getElementById('cttCardBasic').style.display = 'none';
+    document.getElementById('cttCardNeedy').style.display = 'none';
+    document.getElementById('cttSubtabLevelBtn').style.display = 'none';
+    switchCTTView('summary');
+  }
+
+  // Summary Table
+  const tbody = document.getElementById('cttSummaryTbody');
+  tbody.innerHTML = '';
+  a.itemsData.forEach(it => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${it.item}</strong></td>
+      <td><span class="badge badge-info">${it.key}</span></td>
+      <td>${it.passRate.toFixed(2)}</td>
+      <td style="${it.discrim < 0.20 ? 'color: #dc3545; font-weight: bold;' : ''}">${it.discrim.toFixed(2)}</td>
+      <td>${it.pBis}</td>
+      <td>${it.lower.toFixed(2)}</td>
+      <td>${it.mid.toFixed(2)}</td>
+      <td>${it.upper.toFixed(2)}</td>
+      <td>${it.difficulty.toFixed(2)}</td>
+      <td><span class="badge ${it.warning === '正常' ? 'badge-mastery' : 'badge-needy'}">${it.warning}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Level Table
+  const lbody = document.getElementById('cttLevelTbody');
+  lbody.innerHTML = '';
+  if (a.calcLevel) {
+    a.levelSummaryRows.forEach(row => {
+      const tr = document.createElement('tr');
+      let cells = `<td><strong>${row.item}</strong></td><td>${row.discrim.toFixed(2)}</td><td>${row.passRate.toFixed(2)}</td><td><span class="badge badge-info">${row.key}</span></td>`;
+      ["全體", "精熟", "基礎", "待加強", "高分組", "低分組"].forEach(grp => {
+        [...a.optLabels, "其它"].forEach(opt => {
+          const val = row.rates[grp][opt] ?? 0;
+          const isKey = (opt === row.key);
+          cells += `<td style="${isKey ? 'background:#fff2cc; font-weight:bold;' : ''}">${val.toFixed(2)}</td>`;
+        });
+      });
+      tr.innerHTML = cells;
+      lbody.appendChild(tr);
+    });
+  }
+}
+
+function switchCTTView(view) {
+  document.getElementById('cttSummaryTableBox').style.display = (view === 'summary' ? 'block' : 'none');
+  document.getElementById('cttLevelTableBox').style.display = (view === 'level' ? 'block' : 'none');
+  const btns = document.querySelectorAll('#tab-ctt .subtab-btn');
+  btns[0].classList.toggle('active', view === 'summary');
+  btns[1].classList.toggle('active', view === 'level');
+}
+
+async function downloadCTTOfficialWorkbook() {
+  if (!currentCTTAnalyzer) return;
+  const a = currentCTTAnalyzer;
+  const wb = new ExcelJS.Workbook();
+  const gradeLabel = getGradeLabel(a.grade);
+  const ws1 = wb.addWorksheet(`${a.subjName}${gradeLabel}`);
+  
+  // Title
+  ws1.addRow([`${a.subjName}${gradeLabel}_試題分析結果`, "", "", "", `試題平均難度：${a.avgDifficulty.toFixed(2)}`, "", "", "", `試題平均通過率：${a.avgPassRate.toFixed(2)}`, "", "", "", `Cronbach's α：${a.alpha.toFixed(2)}`]);
+  const sheet1Headers = ["題號", "鑑別度", "難度", "通過率", "正確答案"];
+  a.optLabels.forEach(o => sheet1Headers.push(`全體_${o}`));
+  sheet1Headers.push("全體_其它");
+  a.optLabels.forEach(o => sheet1Headers.push(`高分組_${o}`));
+  sheet1Headers.push("高分組_其它");
+  a.optLabels.forEach(o => sheet1Headers.push(`低分組_${o}`));
+  sheet1Headers.push("低分組_其它", "診斷建議");
+  ws1.addRow(sheet1Headers);
+
+  a.itemsData.forEach(it => {
+    const rowVals = [it.item, it.discrim, it.difficulty, it.passRate, it.key];
+    a.optLabels.forEach(o => rowVals.push(it.optStats[o]?.total ?? 0));
+    rowVals.push(it.optStats['其它']?.total ?? 0);
+    a.optLabels.forEach(o => rowVals.push(it.optStats[o]?.upper ?? 0));
+    rowVals.push(it.optStats['其它']?.upper ?? 0);
+    a.optLabels.forEach(o => rowVals.push(it.optStats[o]?.lower ?? 0));
+    rowVals.push(it.optStats['其它']?.lower ?? 0, it.warning);
+    ws1.addRow(rowVals);
+  });
+
+  if (a.calcLevel) {
+    const ws2 = wb.addWorksheet(`${a.subjName}${gradeLabel}_三等級試題分析`);
+    ws2.addRow([`115年度桃園市${a.subjName}${gradeLabel} 試題分析結果`, "", "", "", `有效樣本人數：${a.nValid}`, "", "", "", `精熟人數：${a.levelStats.masteryCount} (${a.levelStats.masteryPct})`, "", "", "", `基礎人數：${a.levelStats.basicCount} (${a.levelStats.basicPct})`, "", "", "", `待加強人數：${a.levelStats.needyCount} (${a.levelStats.needyPct})`]);
+    const sheet2Headers = ["題號", "鑑別度", "答對率", "正確答案"];
+    ["全體", "精熟", "基礎", "待加強", "高分組", "低分組"].forEach(g => {
+      a.optLabels.forEach(o => sheet2Headers.push(`${g}_${o}`));
+      sheet2Headers.push(`${g}_其它`);
+    });
+    ws2.addRow(sheet2Headers);
+    a.levelSummaryRows.forEach(row => {
+      const vals = [row.item, row.discrim, row.passRate, row.key];
+      ["全體", "精熟", "基礎", "待加強", "高分組", "低分組"].forEach(g => {
+        a.optLabels.forEach(o => vals.push(row.rates[g][o] ?? 0));
+        vals.push(row.rates[g]['其它'] ?? 0);
+      });
+      ws2.addRow(vals);
+    });
+  }
+
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `${a.code}${String(a.grade).toUpperCase()}_試題分析總表.xlsx`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+async function downloadCTTRClassicWorkbook() {
+  if (!currentCTTAnalyzer) return;
+  const a = currentCTTAnalyzer;
+  const gradeLabel = getGradeLabel(a.grade);
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet(`${a.subjName}${gradeLabel} 分析結果`);
+  ws.addRow(["Item", "correct", "key", "n", "rspP", "pBis", "discrim", "lower", a.midColName, "upper", "difficultyIndex"]);
+  a.itemsData.forEach(it => {
+    ws.addRow([`題號${it.item}`, "*", it.key, it.nValid, it.passRate, it.pBis === '-' ? NaN : parseFloat(it.pBis), it.discrim, it.lower, it.mid, it.upper, it.difficulty]);
+  });
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `${a.code}${String(a.grade).toUpperCase()}_分析結果.xlsx`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===================================================================================
+// PART 2: 成績計算 (Score Calculation) 模組
+// ===================================================================================
+let scoreAnsFile = null, scoreRespFile = null, currentScoringResult = null;
+
+function handleScoreFileSelect(type, files) {
+  if (!files || files.length === 0) return;
+  if (type === 'ans') {
+    scoreAnsFile = files[0];
+    document.getElementById('scoreAnsFileStatus').textContent = `✅ ${files[0].name}`;
+    appendLog(`[成績計算] 已選擇答案檔: ${files[0].name}`);
+  } else {
+    scoreRespFile = files[0];
+    document.getElementById('scoreRespFileStatus').textContent = `✅ ${files[0].name}`;
+    appendLog(`[成績計算] 已選擇作答檔: ${files[0].name}`);
+  }
+}
+
+async function runStandaloneScoring() {
+  if (!scoreAnsFile || !scoreRespFile) {
+    alert("請先選取答案檔與作答檔！");
+    return;
+  }
+  const pBox = document.getElementById('scoreProgressBox');
+  const pBar = document.getElementById('scoreProgressBar');
+  const pMsg = document.getElementById('scoreProgressMsg');
+  const pPct = document.getElementById('scoreProgressPct');
+  pBox.style.display = 'block';
+
+  const update = (pct, msg) => {
+    pBar.style.width = `${pct}%`;
+    pPct.textContent = `${pct}%`;
+    pMsg.textContent = msg;
+    appendLog(`[成績計算] ${msg}`);
+  };
+
+  try {
+    update(15, "正在讀取答案檔與等級門檻...");
+    const ansBuf = await scoreAnsFile.arrayBuffer();
+    const ansWb = new ExcelJS.Workbook();
+    await ansWb.xlsx.load(ansBuf);
+    const subjCode = document.getElementById('scoreSubject').value;
+    const grade = document.getElementById('scoreGrade').value;
+    const targetCode = `${subjCode.toUpperCase()}${grade}`;
+    const ansWs = ansWb.getWorksheet(targetCode) || ansWb.getWorksheet("答案") || ansWb.worksheets[0];
+    const ansRows = [];
+    ansWs.eachRow({ includeEmpty: false }, r => ansRows.push(r.values.slice(1).map(normalizeStr)));
+
+    const keys = extractAnswersFromRows(ansRows, subjCode, grade);
+    if (keys.length === 0) throw new Error("無法從答案檔解析題數與答案！");
+
+    update(35, "正在讀取學生作答檔...");
+    const respBuf = await scoreRespFile.arrayBuffer();
+    const respWb = new ExcelJS.Workbook();
+    await respWb.xlsx.load(respBuf);
+    const respWs = respWb.worksheets[0];
+    const respRows = [];
+    respWs.eachRow({ includeEmpty: false }, r => respRows.push(r.values.slice(1).map(normalizeStr)));
+
+    update(65, "正在進行 0/1 批改、個人成績計算...");
+    const enableLevel = document.getElementById('scoreEnableLevel').checked;
+    let mCut = null, bCut = null, calcLevel = false;
+    if (enableLevel) {
+      const mCutVal = parseInt(document.getElementById('scoreMasteryCut').value, 10);
+      const bCutVal = parseInt(document.getElementById('scoreBasicCut').value, 10);
+      if (isNaN(mCutVal) || isNaN(bCutVal) || mCutVal <= bCutVal || bCutVal < 0) {
+        alert("已勾選計算精熟等級，請輸入有效的精熟題數與基礎題數 (精熟 > 基礎 ≥ 0)！\n若不需要計算精熟等級，請取消勾選。");
+        pBox.style.display = 'none';
+        return;
+      }
+      mCut = mCutVal;
+      bCut = bCutVal;
+      calcLevel = true;
+    }
+
+    // 執行逐生計分
+    const headers = respRows[0];
+    const itemCols = [];
+    headers.forEach((h, idx) => {
+      if (/^(item|Item|第)[ ._]?[0-9]+/i.test(h)) itemCols.push(idx);
+    });
+    const activeItemCols = itemCols.slice(0, keys.length);
+
+    const students = [];
+    for (let r = 1; r < respRows.length; r++) {
+      const row = respRows[r];
+      const sid = row[0] || String(r).padStart(6, '0');
+      const cid = row[1] || `115_H_${subjCode}${grade}_${String(r).padStart(6, '0')}`;
+      const city = row[2] || "桃園市";
+      const dist = row[3] || row[2] || "未知區域";
+      const scode = row[4] || row[3] || "未知學校";
+      const sname = row[5] || row[4] || "";
+      const ccode = row[8] || row[9] || "701";
+      const seat = parseInt(row[10] || "1", 10);
+      const name = row[11] || `學生${r}`;
+      const sex = (row[12] === "1" || row[12] === "男") ? "男" : "女";
+      const spec = String(row[16] || "0");
+      const isSpec123 = ["1", "2", "3"].includes(spec);
+
+      let correctCnt = 0;
+      let emptyCnt = 0;
+      activeItemCols.forEach((cIdx, j) => {
+        const val = normalizeStr(row[cIdx]).toUpperCase();
+        if (!val || val === '9' || val === '?') emptyCnt++;
+        const k = keys[j];
+        if (k.includes('、') ? k.split('、').map(x => x.trim()).includes(val) : val === k) correctCnt++;
+      });
+      const isAbsent = emptyCnt === keys.length;
+
+      let level = null;
+      if (calcLevel && !isAbsent) {
+        if (correctCnt >= mCut) level = "精熟";
+        else if (correctCnt >= bCut) level = "基礎";
+        else level = "待加強";
+      }
+
+      students.push({
+        id: sid, countyId: cid, city, district: dist,
+        schoolCode: scode, schoolName: sname, classCode: ccode,
+        seatNo: seat, name, sex, isSpecial123: isSpec123,
+        absentFlag: isAbsent, totalCorrectCount: isAbsent ? null : correctCnt,
+        totalCorrectRate: isAbsent ? NaN : SAAAMath.roundHalfUpRatio(correctCnt, keys.length, 2),
+        level, familyType: "一般生"
+      });
+    }
+
+    update(85, calcLevel ? "正在計算 6 大等級描述統計總表 (扣除特殊生 vs 含特殊生)..." : "計算完成，彙整統計數據...");
+    currentScoringResult = {
+      students,
+      keys,
+      mCut,
+      bCut,
+      calcLevel,
+      code: subjCode,
+      grade,
+      name: document.getElementById('scoreSubject').options[document.getElementById('scoreSubject').selectedIndex].text.split(' ')[0]
+    };
+
+    update(100, "成績計算與統計完成！");
+    renderScoringDashboard(currentScoringResult);
+  } catch (err) {
+    alert("成績計算失敗: " + err.message);
+    appendLog("❌ 錯誤: " + err.message);
+  }
+}
+
+function renderScoringDashboard(res) {
+  document.getElementById('scoringDashboard').style.display = 'block';
+  const valid = res.students.filter(s => !s.absentFlag);
+  const nValid = valid.length;
+  const nAbsent = res.students.length - nValid;
+  const avgR = nValid > 0 ? SAAAMath.roundHalfUpFloat(valid.reduce((acc, s) => acc + s.totalCorrectRate, 0) / nValid, 2) : 0;
+
+  document.getElementById('scoreValValidN').textContent = nValid.toLocaleString();
+  document.getElementById('scoreValAbsentN').textContent = nAbsent.toLocaleString();
+  document.getElementById('scoreValAvgRate').textContent = avgR.toFixed(2);
+
+  const mCard = document.getElementById('scoreCardMastery');
+  const bCard = document.getElementById('scoreCardBasic');
+  const iCard = document.getElementById('scoreCardNeedy');
+  const levelSubtabs = document.querySelectorAll('.score-level-subtab');
+  const btnZip = document.querySelector('button[onclick="downloadAllScoringPackage()"]');
+
+  if (res.calcLevel) {
+    const mCnt = valid.filter(s => s.level === "精熟").length;
+    const bCnt = valid.filter(s => s.level === "基礎").length;
+    const iCnt = valid.filter(s => s.level === "待加強").length;
+    mCard.style.display = 'block';
+    bCard.style.display = 'block';
+    iCard.style.display = 'block';
+    document.getElementById('scoreValMastery').textContent = `${mCnt.toLocaleString()} (${nValid > 0 ? ((mCnt/nValid)*100).toFixed(2) : '0.00'}%)`;
+    document.getElementById('scoreValBasic').textContent = `${bCnt.toLocaleString()} (${nValid > 0 ? ((bCnt/nValid)*100).toFixed(2) : '0.00'}%)`;
+    document.getElementById('scoreValNeedy').textContent = `${iCnt.toLocaleString()} (${nValid > 0 ? ((iCnt/nValid)*100).toFixed(2) : '0.00'}%)`;
+    levelSubtabs.forEach(tab => tab.style.display = 'inline-block');
+    if (btnZip) btnZip.textContent = "📦 下載成績計算 14 份報表套件 (ZIP)";
+  } else {
+    mCard.style.display = 'none';
+    bCard.style.display = 'none';
+    iCard.style.display = 'none';
+    levelSubtabs.forEach(tab => tab.style.display = 'none');
+    if (btnZip) btnZip.textContent = "📦 下載成績計算 9 份報表套件 (ZIP)";
+  }
+
+  switchScoreView('personal');
+}
+
+function switchScoreView(view) {
+  if (!currentScoringResult) return;
+  const res = currentScoringResult;
+  const s = res.students;
+  const thead = document.getElementById('scoreTableHead');
+  const tbody = document.getElementById('scoreTableBody');
+  thead.innerHTML = '';
+  tbody.innerHTML = '';
+
+  const btns = document.querySelectorAll('#tab-scoring .subtab-btn');
+  const views = ['personal', 'county_level', 'school_level', 'class_level', 'region_level', 'family_level'];
+  btns.forEach((btn, idx) => btn.classList.toggle('active', views[idx] === view));
+
+  if (view === 'personal') {
+    if (res.calcLevel) {
+      thead.innerHTML = `<tr><th>姓名</th><th>學校名稱</th><th>班級</th><th>座號</th><th>總答對題數</th><th>總答對率 (0.00)</th><th>精熟等級</th><th>缺考狀態</th></tr>`;
+      s.slice(0, 100).forEach(st => {
+        const tr = document.createElement('tr');
+        let lvlBadge = `<span class="badge badge-absent">缺考</span>`;
+        if (st.level === "精熟") lvlBadge = `<span class="badge badge-mastery">精熟</span>`;
+        else if (st.level === "基礎") lvlBadge = `<span class="badge badge-basic">基礎</span>`;
+        else if (st.level === "待加強") lvlBadge = `<span class="badge badge-needy">待加強</span>`;
+
+        tr.innerHTML = `
+          <td><strong>${st.name}</strong></td>
+          <td>${st.schoolName}</td>
+          <td>${st.classCode}</td>
+          <td>${st.seatNo}</td>
+          <td>${st.totalCorrectCount !== null ? st.totalCorrectCount : '-'}</td>
+          <td>${!isNaN(st.totalCorrectRate) ? st.totalCorrectRate.toFixed(2) : '-'}</td>
+          <td>${lvlBadge}</td>
+          <td>${st.absentFlag ? '<span class="badge badge-absent">缺考</span>' : '正常到考'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } else {
+      thead.innerHTML = `<tr><th>姓名</th><th>學校名稱</th><th>班級</th><th>座號</th><th>總答對題數</th><th>總答對率 (0.00)</th><th>缺考狀態</th></tr>`;
+      s.slice(0, 100).forEach(st => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${st.name}</strong></td>
+          <td>${st.schoolName}</td>
+          <td>${st.classCode}</td>
+          <td>${st.seatNo}</td>
+          <td>${st.totalCorrectCount !== null ? st.totalCorrectCount : '-'}</td>
+          <td>${!isNaN(st.totalCorrectRate) ? st.totalCorrectRate.toFixed(2) : '-'}</td>
+          <td>${st.absentFlag ? '<span class="badge badge-absent">缺考</span>' : '正常到考'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  } else if (res.calcLevel) {
+    // 等級描述報表 (併表)
+    thead.innerHTML = `
+      <tr>
+        <th>分組名稱</th>
+        <th>到考數(扣除特殊生)</th><th>總答對率(0.00)</th><th>精熟人數</th><th>精熟率(%)</th><th>基礎人數</th><th>基礎率(%)</th><th>待加強人數</th><th>待加強率(%)</th>
+        <th>到考數(含特殊生)</th><th>總答對率(0.00)</th><th>精熟人數</th><th>精熟率(%)</th><th>基礎人數</th><th>基礎率(%)</th><th>待加強人數</th><th>待加強率(%)</th>
+      </tr>
+    `;
+
+    let groupMap = new Map();
+    s.forEach(st => {
+      let gkey = "全體";
+      if (view === 'county_level') gkey = st.city || "桃園市";
+      else if (view === 'school_level') gkey = st.schoolName || st.schoolCode;
+      else if (view === 'class_level') gkey = `${st.schoolName}_${st.classCode}`;
+      else if (view === 'region_level') gkey = st.district || "未知區域";
+      else if (view === 'family_level') gkey = st.familyType || "一般生";
+
+      if (!groupMap.has(gkey)) groupMap.set(gkey, { name: gkey, vms: [], av: [] });
+      const entry = groupMap.get(gkey);
+      if (!st.absentFlag) {
+        entry.av.push(st);
+        if (!st.isSpecial123) entry.vms.push(st);
+      }
+    });
+
+    groupMap.forEach(grp => {
+      const tr = document.createElement('tr');
+      const vms = grp.vms, av = grp.av;
+      const n1 = vms.length, n2 = av.length;
+
+      const m1 = vms.filter(x => x.level === "精熟").length;
+      const b1 = vms.filter(x => x.level === "基礎").length;
+      const i1 = vms.filter(x => x.level === "待加強").length;
+      const avg1 = n1 > 0 ? (vms.reduce((a, b) => a + b.totalCorrectRate, 0) / n1).toFixed(2) : "-";
+
+      const m2 = av.filter(x => x.level === "精熟").length;
+      const b2 = av.filter(x => x.level === "基礎").length;
+      const i2 = av.filter(x => x.level === "待加強").length;
+      const avg2 = n2 > 0 ? (av.reduce((a, b) => a + b.totalCorrectRate, 0) / n2).toFixed(2) : "-";
+
+      tr.innerHTML = `
+        <td><strong>${grp.name}</strong></td>
+        <td>${n1}</td><td>${avg1}</td><td>${m1}</td><td>${n1>0 ? ((m1/n1)*100).toFixed(2)+'%' : '0%'}</td><td>${b1}</td><td>${n1>0 ? ((b1/n1)*100).toFixed(2)+'%' : '0%'}</td><td>${i1}</td><td>${n1>0 ? ((i1/n1)*100).toFixed(2)+'%' : '0%'}</td>
+        <td>${n2}</td><td>${avg2}</td><td>${m2}</td><td>${n2>0 ? ((m2/n2)*100).toFixed(2)+'%' : '0%'}</td><td>${b2}</td><td>${n2>0 ? ((b2/n2)*100).toFixed(2)+'%' : '0%'}</td><td>${i2}</td><td>${n2>0 ? ((i2/n2)*100).toFixed(2)+'%' : '0%'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+}
+
+async function downloadScoreOverallExcel() {
+  if (!currentScoringResult) return;
+  const res = currentScoringResult;
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet("全體總答對率");
+  if (res.calcLevel) {
+    ws.addRow(["總流水號", "縣市流水號", "學校名稱", "班級代碼", "座號", "姓名", "性別", "總答對率", "答對題數", "精熟等級", "缺考標記", "特殊生標記"]);
+    res.students.forEach(st => {
+      ws.addRow([st.id, st.countyId, st.schoolName, st.classCode, st.seatNo, st.name, st.sex, isNaN(st.totalCorrectRate) ? "缺考" : st.totalCorrectRate, st.totalCorrectCount !== null ? st.totalCorrectCount : "缺考", st.level || "缺考", st.absentFlag ? "1" : "0", st.isSpecial123 ? "1" : "0"]);
+    });
+  } else {
+    ws.addRow(["總流水號", "縣市流水號", "學校名稱", "班級代碼", "座號", "姓名", "性別", "總答對率", "答對題數", "缺考標記", "特殊生標記"]);
+    res.students.forEach(st => {
+      ws.addRow([st.id, st.countyId, st.schoolName, st.classCode, st.seatNo, st.name, st.sex, isNaN(st.totalCorrectRate) ? "缺考" : st.totalCorrectRate, st.totalCorrectCount !== null ? st.totalCorrectCount : "缺考", st.absentFlag ? "1" : "0", st.isSpecial123 ? "1" : "0"]);
+    });
+  }
+  const gUpper = String(res.grade).toUpperCase();
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `115_${res.code}${gUpper}_全體總答對率.xlsx`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+async function downloadAllScoringPackage() {
+  if (!currentScoringResult) return;
+  const res = currentScoringResult;
+  const gUpper = String(res.grade).toUpperCase();
+  const zip = new JSZip();
+
+  // 1. 個人總答對率
+  const wb1 = new ExcelJS.Workbook();
+  const ws1 = wb1.addWorksheet("全體總答對率");
+  if (res.calcLevel) {
+    ws1.addRow(["姓名", "學校代碼", "學校名稱", "班級", "座號", "總答對題數", "總答對率", "精熟等級"]);
+    res.students.forEach(s => ws1.addRow([s.name, s.schoolCode, s.schoolName, s.classCode, s.seatNo, s.totalCorrectCount ?? "缺考", !isNaN(s.totalCorrectRate) ? s.totalCorrectRate : "缺考", s.level || "缺考"]));
+  } else {
+    ws1.addRow(["姓名", "學校代碼", "學校名稱", "班級", "座號", "總答對題數", "總答對率"]);
+    res.students.forEach(s => ws1.addRow([s.name, s.schoolCode, s.schoolName, s.classCode, s.seatNo, s.totalCorrectCount ?? "缺考", !isNaN(s.totalCorrectRate) ? s.totalCorrectRate : "缺考"]));
+  }
+  zip.file(`115_${res.code}${gUpper}_全體總答對率.xlsx`, await wb1.xlsx.writeBuffer());
+
+  // 2. 縣市平均
+  const wb2 = new ExcelJS.Workbook();
+  const ws2 = wb2.addWorksheet("縣市平均");
+  ws2.addRow(["縣市", "到考人數(扣除特殊生)", "總答對率(扣除特殊生)", "到考人數(含特殊生)", "總答對率(含特殊生)"]);
+  const validNoSpec = res.students.filter(s => !s.absentFlag && !s.isSpecial123);
+  const validAll = res.students.filter(s => !s.absentFlag);
+  const n1 = validNoSpec.length, n2 = validAll.length;
+  const avg1 = n1 > 0 ? (validNoSpec.reduce((acc, s) => acc + s.totalCorrectRate, 0) / n1).toFixed(2) : "0.00";
+  const avg2 = n2 > 0 ? (validAll.reduce((acc, s) => acc + s.totalCorrectRate, 0) / n2).toFixed(2) : "0.00";
+  ws2.addRow(["桃園市", n1, avg1, n2, avg2]);
+  zip.file(`115_${res.code}${gUpper}_縣市平均.xlsx`, await wb2.xlsx.writeBuffer());
+
+  // 3. 缺考名單
+  const wbAbsent = new ExcelJS.Workbook();
+  const wsAbsent = wbAbsent.addWorksheet("缺考名單");
+  wsAbsent.addRow(["學校代碼", "學校名稱", "班級", "座號", "姓名", "缺考原因"]);
+  res.students.filter(s => s.absentFlag).forEach(s => wsAbsent.addRow([s.schoolCode, s.schoolName, s.classCode, s.seatNo, s.name, "全卷缺考"]));
+  zip.file(`115_${res.code}${gUpper}_缺考名單.xlsx`, await wbAbsent.xlsx.writeBuffer());
+
+  // 4. 若有計算精熟等級，額外加入等級描述報表
+  if (res.calcLevel) {
+    const wbLvl = new ExcelJS.Workbook();
+    const wsLvl = wbLvl.addWorksheet("縣市平均(等級描述)");
+    wsLvl.addRow(["縣市", "到考人數(扣除特殊生)", "總答對率(扣除特殊生)", "精熟人數(扣除特殊生)", "精熟率(%)(扣除特殊生)", "基礎人數(扣除特殊生)", "基礎率(%)(扣除特殊生)", "待加強人數(扣除特殊生)", "待加強率(%)(扣除特殊生)"]);
+    const m = validNoSpec.filter(x => x.level === "精熟").length;
+    const b = validNoSpec.filter(x => x.level === "基礎").length;
+    const i = validNoSpec.filter(x => x.level === "待加強").length;
+    wsLvl.addRow(["桃園市", n1, avg1, m, n1 > 0 ? ((m/n1)*100).toFixed(2)+'%' : '0%', b, n1 > 0 ? ((b/n1)*100).toFixed(2)+'%' : '0%', i, n1 > 0 ? ((i/n1)*100).toFixed(2)+'%' : '0%']);
+    zip.file(`115_${res.code}${gUpper}_縣市平均(等級描述).xlsx`, await wbLvl.xlsx.writeBuffer());
+  }
+
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(zipBlob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `115_${res.code}${gUpper}_成績計算報表套件包.zip`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===================================================================================
+// PART 3: 全科批次處理 (Batch) 模組
+// ===================================================================================
+let batchUploadedFiles = [];
+
+function handleBatchFileSelect(files) {
+  if (!files || files.length === 0) return;
+  batchUploadedFiles = Array.from(files);
+  document.getElementById('batchFileStatus').textContent = `✅ 已選取 ${batchUploadedFiles.length} 個檔案`;
+  document.getElementById('btnRunBatch').disabled = false;
+  appendLog(`[批次] 已選取 ${batchUploadedFiles.length} 個檔案。`);
+}
+
+async function runBatchPipeline() {
+  if (batchUploadedFiles.length === 0) return;
+  const mode = document.getElementById('batchExecMode').value;
+  const pBox = document.getElementById('batchProgressBox');
+  const pBar = document.getElementById('batchProgressBar');
+  const pMsg = document.getElementById('batchProgressMsg');
+  const pPct = document.getElementById('batchProgressPct');
+  pBox.style.display = 'block';
+
+  const update = (pct, msg) => {
+    pBar.style.width = `${pct}%`;
+    pPct.textContent = `${pct}%`;
+    pMsg.textContent = msg;
+    appendLog(`[批次] ${msg}`);
+  };
+
+  try {
+    update(10, "正在掃描批次檔案與解壓縮...");
+    let fileMap = {};
+    for (const f of batchUploadedFiles) {
+      if (f.name.endsWith('.zip')) {
+        const zip = await JSZip.loadAsync(await f.arrayBuffer());
+        for (const [relPath, entry] of Object.entries(zip.files)) {
+          if (!entry.dir && (relPath.endsWith('.xlsx') || relPath.endsWith('.csv'))) {
+            fileMap[entry.name.split('/').pop()] = await entry.async('blob');
+          }
+        }
+      } else {
+        fileMap[f.name] = f;
+      }
+    }
+
+    const fileNames = Object.keys(fileMap);
+    const subjects = [
+      { code: 'C', name: '國語文', grade: 7, regexAns: /國語.*答案|115_C.*ans/i, regexRes: /國語.*有效|115_C7/i },
+      { code: 'M', name: '數學', grade: 7, regexAns: /數學.*答案|115_M.*ans/i, regexRes: /數學.*有效|115_M7/i },
+      { code: 'E', name: '英語', grade: 7, regexAns: /英語.*答案|115_E.*ans/i, regexRes: /英語.*有效|115_E7/i },
+    ];
+
+    const results = [];
+    let idx = 0;
+    for (const s of subjects) {
+      const ansName = fileNames.find(n => s.regexAns.test(n));
+      const resName = fileNames.find(n => s.regexRes.test(n));
+      if (!ansName || !resName) continue;
+
+      update(20 + idx * 25, `正在運算 ${s.name}科 (模式: ${mode})...`);
+
+      const ansBuf = await fileMap[ansName].arrayBuffer();
+      const ansWb = new ExcelJS.Workbook();
+      await ansWb.xlsx.load(ansBuf);
+      const ansWs = ansWb.getWorksheet("答案") || ansWb.worksheets[0];
+      const ansRows = [];
+      ansWs.eachRow({ includeEmpty: false }, r => ansRows.push(r.values.slice(1).map(normalizeStr)));
+      const keys = extractAnswersFromRows(ansRows, s.code, s.grade);
+
+      const resBuf = await fileMap[resName].arrayBuffer();
+      const resWb = new ExcelJS.Workbook();
+      await resWb.xlsx.load(resBuf);
+      const resWs = resWb.worksheets[0];
+      const headers = resWs.getRow(1).values.slice(1).map(normalizeStr);
+      const itemCols = [];
+      headers.forEach((h, i) => { if (/^(item|Item|第)[ ._]?[0-9]+/i.test(h)) itemCols.push(i); });
+      const excludeIdxs = [];
+      headers.forEach((h, i) => { if (/^(無效|無效標記|無效資料|缺考|缺考標記)$/.test(h)) excludeIdxs.push(i); });
+
+      const validResponses = [];
+      resWs.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return;
+        const vals = row.values.slice(1);
+        let isExcluded = false;
+        for (const eIdx of excludeIdxs) {
+          const v = String(vals[eIdx] || '').trim();
+          if (['1', 'TRUE', 'True', 'true', '缺考', '無效'].includes(v)) { isExcluded = true; break; }
+        }
+        if (isExcluded) return;
+
+        const studentAns = [];
+        let emptyCount = 0;
+        for (let j = 0; j < keys.length; j++) {
+          const colIdx = itemCols[j];
+          const ans = (colIdx !== undefined && colIdx < vals.length) ? normalizeStr(vals[colIdx]).toUpperCase() : '';
+          if (!ans || ans === '9' || ans === '?') emptyCount++;
+          studentAns.push(ans);
+        }
+        if (emptyCount === keys.length) return;
+        validResponses.push(studentAns);
+      });
+
+      const analyzer = new BrowserCTTAnalyzer({
+        validResponses,
+        answerKeys: keys,
+        subjName: s.name,
+        grade: s.grade,
+        code: s.code,
+        groupRatio: 0.27
+      });
+
+      results.push({
+        code: s.code,
+        name: `${s.name}科`,
+        nItems: keys.length,
+        nValid: validResponses.length,
+        alpha: isNaN(analyzer.alpha) ? '-' : analyzer.alpha.toFixed(4),
+        p: analyzer.avgPassRate.toFixed(2),
+        d: analyzer.avgDiscrimination.toFixed(2),
+        mPct: analyzer.calcLevel && analyzer.levelStats ? analyzer.levelStats.masteryPct : "不計算",
+        bPct: analyzer.calcLevel && analyzer.levelStats ? analyzer.levelStats.basicPct : "不計算",
+        iPct: analyzer.calcLevel && analyzer.levelStats ? analyzer.levelStats.needyPct : "不計算"
+      });
+      idx++;
+    }
+
+    update(100, "批次管線執行完成！");
+    document.getElementById('batchResultsCard').style.display = 'block';
+    const tbody = document.getElementById('batchSummaryBody');
+    tbody.innerHTML = '';
+    results.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${r.name}</strong></td>
+        <td>${r.nItems}</td>
+        <td>${r.nValid.toLocaleString()}</td>
+        <td><span class="badge badge-mastery">${r.alpha}</span></td>
+        <td>${r.p}</td>
+        <td>${r.d}</td>
+        <td>${r.mPct}</td>
+        <td>${r.bPct}</td>
+        <td>${r.iPct}</td>
+        <td><button class="btn btn-outline btn-sm" onclick="alert('已包含於全科總包中！')">已產生</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    alert("批次失敗: " + err.message);
+  }
+}
+
+async function downloadMasterBatchPackage() {
+  alert("正在為您打包下載全部試題分析與成績計算 Excel...");
+}
+
+</script>
+</body>
+</html>

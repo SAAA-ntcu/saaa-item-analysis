@@ -1,0 +1,27 @@
+[package]
+name = "saaa-item-analysis"
+version = "2.0.0"
+description = "SAAA 學生學習能力檢測 - 試題分析 (CTT) 與成績計算系統 - 桌面原生應用程式"
+authors = ["SAAA-ntcu"]
+edition = "2021"
+
+[lib]
+name = "saaa_item_analysis_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

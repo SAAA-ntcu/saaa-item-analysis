@@ -128,6 +128,7 @@ import { ref } from 'vue'
 import JSZip from 'jszip'
 import ExcelJS from 'exceljs'
 import CTTAnalyzer from '@/core/ctt.js'
+import { triggerDownload } from '@/utils/download.js'
 
 const emit = defineEmits(['log'])
 
@@ -278,6 +279,19 @@ async function runPipeline() {
 }
 
 async function downloadMasterZip() {
-  alert('正在為您打包下載全部試題分析與成績報表總包...')
+  if (batchResults.value.length === 0) return
+  emit('log', '[Batch] 正在生成全科品質彙整表...')
+  const wb = new ExcelJS.Workbook()
+  const ws = wb.addWorksheet('全科品質彙整')
+  ws.addRow(['考科名稱', '總題數', '有效人數', "Cronbach's α", '平均通過率 P', '平均鑑別度 D', '精熟率', '基礎率', '待加強率'])
+  batchResults.value.forEach(r => {
+    ws.addRow([r.name, r.items, r.n, r.alpha, r.p, r.d, r.mPct, r.bPct, r.iPct])
+  })
+  const buf = await wb.xlsx.writeBuffer()
+  const zip = new JSZip()
+  zip.file('00_全科品質彙整表.xlsx', buf)
+  const zipBlob = await zip.generateAsync({ type: 'blob' })
+  await triggerDownload(zipBlob, 'SAAA_全科批次分析彙整套件.zip')
+  emit('log', '[Batch] 批次套件下載完成！')
 }
 </script>

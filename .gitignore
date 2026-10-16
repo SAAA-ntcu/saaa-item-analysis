@@ -27,3 +27,15 @@ dist-ssr
 output/
 tmp/
 *.tmp
+
+# Tauri build artifacts
+src-tauri/target/
+dist-windows/
+dist-macos/
+dist-web/
+release-assets/
+
+# Sensitive data protection
+01_原始評量資料/
+raw_data/
+*.private.*

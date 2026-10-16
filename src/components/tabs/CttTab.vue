@@ -329,6 +329,7 @@ import ExcelJS from 'exceljs'
 import CTTAnalyzer from '@/core/ctt.js'
 import SAAAMath from '@/core/math.js'
 import ItemTrendChart from './ItemTrendChart.vue'
+import { triggerDownload } from '@/utils/download.js'
 
 const emit = defineEmits(['log'])
 
@@ -617,12 +618,7 @@ async function exportOfficialWorkbook() {
 
   const buf = await wb.xlsx.writeBuffer()
   const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-  const url = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = `${a.subjectName}${gradeLabel}_試題分析結果.xlsx`
-  anchor.click()
-  URL.revokeObjectURL(url)
+  await triggerDownload(blob, `${a.subjectName}${gradeLabel}_試題分析結果.xlsx`)
 }
 
 async function exportClassicWorkbook() {
@@ -641,11 +637,6 @@ async function exportClassicWorkbook() {
 
   const buf = await wb.xlsx.writeBuffer()
   const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-  const url = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = `${a.code}${String(a.grade).toUpperCase()}_試題分析_R經典.xlsx`
-  anchor.click()
-  URL.revokeObjectURL(url)
+  await triggerDownload(blob, `${a.code}${String(a.grade).toUpperCase()}_試題分析_R經典.xlsx`)
 }
 </script>

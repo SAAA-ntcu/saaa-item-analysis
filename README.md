@@ -2,17 +2,23 @@
 
 <div align="center">
 
+[![CI Check](https://github.com/SAAA-ntcu/saaa-item-analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/SAAA-ntcu/saaa-item-analysis/actions/workflows/ci.yml)
+[![Desktop Release](https://github.com/SAAA-ntcu/saaa-item-analysis/actions/workflows/release-desktop.yml/badge.svg)](https://github.com/SAAA-ntcu/saaa-item-analysis/actions/workflows/release-desktop.yml)
+[![Tauri v2](https://img.shields.io/badge/Tauri-v2.0-blue?logo=tauri)](https://v2.tauri.app/)
 ![Vue 3](https://img.shields.io/badge/Vue-3.5.13-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6.0.11-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.17-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Precision](https://img.shields.io/badge/Precision-0.00%20BigInt-52796f?style=for-the-badge)
 ![R Consistency](https://img.shields.io/badge/R%20Consistency-100%25%20Verified-354f52?style=for-the-badge)
+[![100% Client-Side](https://img.shields.io/badge/Security-100%25%20Offline%20%26%20Client--Side-blue?logo=shield)](https://github.com/SAAA-ntcu/saaa-item-analysis)
 ![License](https://img.shields.io/badge/License-MIT-c47c5d?style=for-the-badge)
 
 **國立臺中教育大學 ｜ 測驗統計與適性學習研究中心 (NTCU IER)**  
 *Students' Academic Attainment Assessment (SAAA) Item Analysis & Score Calculation System*
 
-[線上預覽與操作 (GitHub Pages)](https://saaa-ntcu.github.io/saaa-item-analysis/) · [回報問題](https://github.com/SAAA-ntcu/saaa-item-analysis/issues)
+> 🔒 **100% 本機離線運算** · **零個資上傳** · **支援跨平台原生桌面應用程式 (Windows .msi/.exe, macOS .dmg) 與純瀏覽器免安裝運行** · **專門適配 SAAA 學力檢測 CTT 試題分析與成績處理**
+
+[線上直接使用 (GitHub Pages)](https://saaa-ntcu.github.io/saaa-item-analysis/) · [下載桌面版 (GitHub Releases)](https://github.com/SAAA-ntcu/saaa-item-analysis/releases) · [回報問題](https://github.com/SAAA-ntcu/saaa-item-analysis/issues)
 
 </div>
 
@@ -26,6 +32,46 @@
 1. **極速運算**：純 JavaScript 雙引擎架構，在瀏覽器端本機只需數秒即可完成 **65,000+ 筆** 學生原始資料的批改計分、常模分群與試題分析。
 2. **視覺美學全面對齊 [`saaa-vue`](https://github.com/SAAA-ntcu/saaa-vue)**：完整承襲官方 **莫蘭迪文青活頁手帳（Morandi Academic Notebook）** 風格，提供包含手帳外殼、金屬裝訂環、燕尾書籤、彩色索引標籤與互動折線趨勢圖。
 3. **100% 精準對齊 R 語言**：採用自研純整數 BigInt 算術四捨五入算法，徹底消滅二進位浮點誤差，全卷信度 Cronbach's $\alpha$、高低分組切點、各題通過率與鑑別度一人不差、一分不差。
+4. **Tauri v2 跨平台桌面封裝**：比照 [`SAAA-Deidentification-Tool`](https://github.com/SAAA-ntcu/SAAA-Deidentification-Tool) 標準，支援 Windows 安裝檔 (`.exe`, `.msi`)、macOS 應用檔 (`.dmg`)、免安裝離線 ZIP 與 GitHub Pages 線上版。
+
+---
+
+## 💻 全平台使用方式 (Windows / macOS / 網頁免安裝 / 線上版)
+
+本系統為各級學校教師、資訊組長與研究人員提供四種使用管道，所有管道皆為 **100% 本地運算、絕不上傳任何個資或題目至雲端**：
+
+### 🪟 Windows 教師使用指南 (推薦桌面版)
+
+Windows 老師可至 [GitHub Releases 發布頁面](https://github.com/SAAA-ntcu/saaa-item-analysis/releases) 下載專屬安裝檔：
+
+| 檔案類型 | 推薦對象 | 特點說明 |
+|---|---|---|
+| **`*.exe` (NSIS 安裝檔)** | 國小 / 國中一般教師 | 繁體中文精靈引導，雙擊「下一步」即可安裝完成，自動建立桌面捷徑與開始功能表圖示。支援系統原生另存新檔對話框。 |
+| **`*.msi` (Windows Installer)** | 學校資訊組長 / 系統管理員 | 具備標準 Windows 封裝規格，支援 Active Directory / 群組原則 (GPO) 批次自動派送至學校電腦教室。 |
+
+---
+
+### 🍎 macOS 教師使用指南 (原生桌面版)
+
+1. 至 [Releases 頁面](https://github.com/SAAA-ntcu/saaa-item-analysis/releases) 下載 `SAAA_Item_Analysis_macOS.dmg`。
+2. 雙擊開啟 `.dmg`，將 **「SAAA試題分析系統」** 拖曳至 **「Applications (應用程式)」** 資料夾。
+3. 於應用程式清單中點擊啟動即可。原生 Apple Silicon / Intel 雙架構支援，超輕量極致效能。
+
+---
+
+### 🌐 方案三：免安裝純網頁離線版 (ZIP 下載，拔掉網路線可用)
+
+1. 至 [Releases 頁面](https://github.com/SAAA-ntcu/saaa-item-analysis/releases) 下載 `SAAA_Item_Analysis_Offline.zip`。
+2. 解壓縮後，**直接點兩下打開 `index.html`**。
+3. 所有相依套件皆已本機化於資料夾中，在完全無網路的環境下亦可流暢運行。
+4. 另外提供單一 HTML 檔案版 `SAAA試題分析系統.html`（僅 121 KB），隨身碟隨插隨開！
+
+---
+
+### 🚀 方案四：GitHub Pages 線上直接使用 (零下載、零安裝)
+
+直接點擊前往：**[SAAA 試題分析與成績計算系統 線上版](https://saaa-ntcu.github.io/saaa-item-analysis/)**  
+直接將答案檔與學生作答檔拖入網頁，即可在瀏覽器記憶體中完成分析與下載。
 
 ---
 
@@ -167,6 +213,38 @@ npm run cli:ctt -- -a 答案檔.xlsx -r 作答檔.xlsx -s C -g 7n
 npm run cli:scoring -- -a 答案檔.xlsx -r 作答檔.xlsx -s C -g 7n -m 23 -b 15
 ```
 
+### 🖥️ 桌面原生應用程式 (Tauri v2) 開發與建置
+
+```bash
+# 本機開發模式 (啟動 Vite + 原生 WebView 視窗)
+npm run tauri:dev
+
+# 編譯桌面原生安裝檔 (Windows .exe, .msi / macOS .app)
+npm run tauri:build
+```
+
+---
+
+## ⚙️ 打包原理與 CI/CD 自動化流程 (比照 SAAA 去識別化工具)
+
+本專案全面比照 [`SAAA-Deidentification-Tool`](https://github.com/SAAA-ntcu/SAAA-Deidentification-Tool) 規格建置高安全、極輕量之原生桌面與離線打包流程：
+
+1. **極致輕量原生核心 (Tauri v2 + Rust)**：
+   - 捨棄傳統 Electron 肥大體積（150+ MB），採用作業系統內建之 Webview2 (Windows) 與 WebKit (macOS)，編譯後程式碼僅數 MB。
+   - 原生系統另存新檔對話框 (`save_bytes` IPC 命令)：在桌面版點擊匯出 Excel 或 ZIP 時，直接啟動作業系統原生的另存對話框，避免瀏覽器下載攔截。
+2. **多平台安裝檔規格**：
+   - **Windows**：產出 `*.exe` (NSIS 繁體中文一鍵安裝引導精靈) 與 `*.msi` (標準 Windows Installer，便於教育局端與資訊組長透過 AD GPO 大量派送)。
+   - **macOS**：利用 macOS 核心 `hdiutil` 自動生成含 `/Applications` 拖曳安裝捷徑之 `.dmg` 映像檔與 `.app.zip` 綠色版。
+   - **離線純網頁版**：產出 `SAAA_Item_Analysis_Offline.zip` 與單檔離線版 `SAAA試題分析系統.html`。
+3. **GitHub Actions 雲端四軌自動化發布 (`release-desktop.yml`)**：
+   - 當推送版本標籤（例如 `git tag v2.0.0 && git push origin v2.0.0`）或在 Actions 頁面手動點擊觸發時，平行啟動：
+     - `build-windows` (windows-latest)
+     - `build-macos` (macos-latest)
+     - `build-offline-zip` (ubuntu-latest)
+     - `publish-release` (ubuntu-latest)：匯總所有平台安裝檔，自動建立 GitHub Release 並產生繁體中文下載指引。
+4. **程式碼品質與隱私防護 (`ci.yml`)**：
+   - 自動執行 65,000+ 筆實測數據的地面真值（Ground Truth）測試、Vite 編譯檢測，並主動掃描以防學生個人真實名冊誤推至公開倉庫。
+
 ---
 
 ## 📂 專案目錄結構
@@ -175,7 +253,17 @@ npm run cli:scoring -- -a 答案檔.xlsx -r 作答檔.xlsx -s C -g 7n -m 23 -b 1
 saaa-item-analysis/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml          # GitHub Actions 自動部署至 GitHub Pages
+│       ├── release-desktop.yml # 🪟🍎 自動編譯 Windows (.msi/.exe) 與 macOS (.dmg) 並發布 Release
+│       ├── deploy.yml          # 🚀 自動部署 SAAA 網頁工具至 GitHub Pages
+│       └── ci.yml              # 🛡️ 單元測試、編譯檢驗與敏感資料防護
+├── src-tauri/                  # 🖥️ Tauri v2 跨平台原生桌面核心
+│   ├── Cargo.toml              # Rust 專案相依設定 (tauri-plugin-dialog, tauri-plugin-fs)
+│   ├── tauri.conf.json         # 視窗外觀、NSIS 繁體中文、打包規格設定
+│   ├── build.rs                # Tauri 建置腳本
+│   ├── icons/                  # 高解析度跨平台 App 圖示 (.ico, .icns, .png)
+│   └── src/
+│       ├── main.rs             # 桌面程式進入點
+│       └── lib.rs              # save_bytes 原生另存新檔系統對話框 IPC 命令
 ├── public/
 │   └── images/                 # 莫蘭迪手帳背景、閱讀男孩女孩、官方 Logo
 ├── src/
@@ -198,12 +286,15 @@ saaa-item-analysis/
 │   │   ├── summaries.js        # 縣市/學校/班級等級描述彙總引擎
 │   │   ├── exporter.js         # ExcelJS 官方綠底表頭報表渲染引擎
 │   │   └── constants.js        # SAAA 科目、年級與樣式常數
+│   ├── utils/
+│   │   └── download.js         # 混合下載引擎 (Tauri 原生 save_bytes / 瀏覽器 fallback)
 │   ├── cli/                    # CLI 命令列獨立執行工具
 │   ├── App.vue                 # 根元件
 │   ├── main.js                 # 應用程式入口
 │   └── style.css               # Tailwind CSS 與莫蘭迪主題變數
 ├── test/
 │   └── test_ground_truth.js    # 65,000+ 筆實測數據驗證腳本
+├── SAAA試題分析系統.html        # 桌面單檔極速離線版 (121 KB，免開伺服器)
 ├── index.html                  # Vite SPA 入口
 ├── vite.config.js              # Vite 建置設定 (支援相對路徑與 Pages)
 ├── tailwind.config.js          # Tailwind 主題顏色擴充

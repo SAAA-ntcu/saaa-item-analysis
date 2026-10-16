@@ -1,0 +1,38 @@
+name: CI - Code Quality & Security Check
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint-test-and-validate:
+    name: 程式碼品質、單元測試與敏感資料防護
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 安裝依賴套件
+        run: npm ci
+
+      - name: 執行高階計量驗證單元測試 (Ground Truth)
+        run: npm test
+
+      - name: 執行生產環境建置檢核 (Vite Build)
+        run: npm run build
+
+      - name: 檢查機密與個資外洩防護 (敏感資料掃描)
+        run: |
+          # 確保不會誤將包含真實個資的原始評量資料 push 上公開 repo
+          if [ -d "01_原始評量資料" ] || [ -d "raw_data" ]; then
+            echo "::warning title=隱私提醒::偵測到原始資料目錄，請確保已在 .gitignore 中排除原始資料，避免外洩至公開 Repository！"
+          fi
+          echo "CI 檢測通過！"

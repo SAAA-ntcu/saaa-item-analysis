@@ -380,6 +380,7 @@ import JSZip from 'jszip'
 import ScoringEngine from '@/core/scoring.js'
 import SummaryEngine from '@/core/summaries.js'
 import SAAAMath from '@/core/math.js'
+import { triggerDownload } from '@/utils/download.js'
 
 const emit = defineEmits(['log'])
 
@@ -658,12 +659,7 @@ async function exportPersonalExcel() {
 
   const buf = await wb.xlsx.writeBuffer()
   const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${subject.value}${String(grade.value).toUpperCase()}_學生個人成績表.xlsx`
-  a.click()
-  URL.revokeObjectURL(url)
+  await triggerDownload(blob, `${subject.value}${String(grade.value).toUpperCase()}_學生個人成績表.xlsx`)
 }
 
 async function downloadPackage() {
@@ -699,12 +695,7 @@ async function downloadPackage() {
   folder.file('02_各校平均與等級描述表.xlsx', buf2)
 
   const zipBlob = await zip.generateAsync({ type: 'blob' })
-  const url = URL.createObjectURL(zipBlob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `115_${subject.value}${String(grade.value).toUpperCase()}_成績計算套件.zip`
-  a.click()
-  URL.revokeObjectURL(url)
+  await triggerDownload(zipBlob, `115_${subject.value}${String(grade.value).toUpperCase()}_成績計算套件.zip`)
   emit('log', '[Scoring] 14 份報表套件打包下載完成！')
 }
 </script>
