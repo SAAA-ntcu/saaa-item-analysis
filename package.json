@@ -17,6 +17,7 @@
     "test": "node test/test_ground_truth.js"
   },
   "dependencies": {
+    "@lucide/vue": "^1.58.0",
     "@tauri-apps/api": "^2.12.4",
     "exceljs": "^4.4.0",
     "jszip": "^3.10.1",

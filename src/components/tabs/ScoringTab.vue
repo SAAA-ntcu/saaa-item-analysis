@@ -30,12 +30,17 @@
           @drop.prevent="handleDrop($event, 'ans')"
         >
           <input type="file" accept=".xlsx,.xls,.csv" class="absolute inset-0 opacity-0 cursor-pointer" @change="handleFileSelect($event, 'ans')" />
-          <div class="text-3xl mb-1.5">🔑</div>
+          <div class="flex justify-center mb-1.5">
+            <KeyRound class="w-8 h-8 text-[#c47c5d] stroke-[1.5]" />
+          </div>
           <div class="text-xs sm:text-sm font-bold text-[#354f52]">
             {{ ansFile ? `已選擇答案檔：${ansFile.name}` : '拖曳或選取【答案檔】(.xlsx)' }}
           </div>
           <div class="text-[11px] text-slate-400 mt-1">包含「答案」、「向度」、「等級門檻」工作表</div>
-          <div v-if="ansFile" class="mt-2 text-xs font-bold text-[#c47c5d]">✅ 檔案已載入 ({{ (ansFile.size / 1024).toFixed(1) }} KB)</div>
+          <div v-if="ansFile" class="mt-2 text-xs font-bold text-[#c47c5d] flex items-center justify-center gap-1">
+            <CheckCircle2 class="w-3.5 h-3.5" />
+            <span>檔案已載入 ({{ (ansFile.size / 1024).toFixed(1) }} KB)</span>
+          </div>
         </div>
 
         <!-- Response Dropzone -->
@@ -46,12 +51,17 @@
           @drop.prevent="handleDrop($event, 'resp')"
         >
           <input type="file" accept=".xlsx,.xls,.csv" class="absolute inset-0 opacity-0 cursor-pointer" @change="handleFileSelect($event, 'resp')" />
-          <div class="text-3xl mb-1.5">📋</div>
+          <div class="flex justify-center mb-1.5">
+            <FileSpreadsheet class="w-8 h-8 text-[#c47c5d] stroke-[1.5]" />
+          </div>
           <div class="text-xs sm:text-sm font-bold text-[#354f52]">
             {{ respFile ? `已選擇作答檔：${respFile.name}` : '拖曳或選取【作答檔】(.xlsx)' }}
           </div>
           <div class="text-[11px] text-slate-400 mt-1">包含學生基本資料、身分別與題目作答選項</div>
-          <div v-if="respFile" class="mt-2 text-xs font-bold text-[#c47c5d]">✅ 檔案已載入 ({{ (respFile.size / 1024).toFixed(1) }} KB)</div>
+          <div v-if="respFile" class="mt-2 text-xs font-bold text-[#c47c5d] flex items-center justify-center gap-1">
+            <CheckCircle2 class="w-3.5 h-3.5" />
+            <span>檔案已載入 ({{ (respFile.size / 1024).toFixed(1) }} KB)</span>
+          </div>
         </div>
       </div>
 
@@ -122,7 +132,8 @@
             :disabled="isRunning"
             class="h-9 px-5 bg-[#c47c5d] hover:bg-[#a96649] disabled:bg-slate-400 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
-            <span>⚡ 開始成績計算</span>
+            <Play class="w-4 h-4 fill-white" />
+            <span>開始成績計算</span>
           </button>
         </div>
       </div>
@@ -144,7 +155,8 @@
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 flex-wrap gap-3">
         <div>
           <h2 class="text-base sm:text-lg font-black text-[#203b46] flex items-center gap-2 m-0">
-            🏆 成績計算與三等級描述彙總成果
+            <Award class="w-5 h-5 text-[#c47c5d]" />
+            <span>成績計算與三等級描述彙總成果</span>
           </h2>
           <p class="text-xs text-slate-400 mt-0.5 m-0 font-medium">精熟 / 基礎 / 待加強 ｜ 扣除特殊生與含特殊生雙軌統計</p>
         </div>
@@ -153,16 +165,18 @@
           <button
             type="button"
             @click="downloadPackage"
-            class="h-8 px-3 bg-[#c47c5d] hover:bg-[#a96649] text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer"
+            class="h-8 px-3 bg-[#c47c5d] hover:bg-[#a96649] text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
           >
-            📦 下載成績計算 14 份報表套件 (ZIP)
+            <Archive class="w-4 h-4" />
+            <span>下載成績計算 14 份報表套件 (ZIP)</span>
           </button>
           <button
             type="button"
             @click="exportPersonalExcel"
-            class="h-8 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer"
+            class="h-8 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
           >
-            📥 匯出個人成績表 (.xlsx)
+            <Download class="w-4 h-4" />
+            <span>匯出個人成績表 (.xlsx)</span>
           </button>
         </div>
       </div>
@@ -375,6 +389,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { KeyRound, FileSpreadsheet, Play, Award, Archive, Download, CheckCircle2 } from '@lucide/vue'
 import ExcelJS from 'exceljs'
 import JSZip from 'jszip'
 import ScoringEngine from '@/core/scoring.js'
@@ -544,7 +559,7 @@ async function runScoring() {
     emit('log', `[Scoring] 成績計算完成，共處理 ${studentList.length} 名學生！`)
   } catch (err) {
     alert('成績計算失敗: ' + err.message)
-    emit('log', '❌ 錯誤: ' + err.message)
+    emit('log', '[錯誤] ' + err.message)
   } finally {
     isRunning.value = false
   }

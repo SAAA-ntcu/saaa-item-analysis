@@ -25,7 +25,7 @@
           ? 'bg-[#edf2ee] text-[#354f52] font-bold shadow-2xs ring-1 ring-[#52796f]/25'
           : 'text-slate-600 hover:bg-[#f4f7f5] hover:text-[#52796f]'"
       >
-        <span>{{ tab.icon }}</span>
+        <component :is="tab.icon" class="w-4 h-4 shrink-0" />
         <span>{{ tab.title }}</span>
       </button>
     </nav>
@@ -43,6 +43,8 @@
 </template>
 
 <script setup>
+import { BarChart3, GraduationCap, Layers, BookOpen } from '@lucide/vue'
+
 defineProps({
   activeTab: {
     type: String,
@@ -53,9 +55,9 @@ defineProps({
 defineEmits(['switch-tab'])
 
 const tabs = [
-  { key: 'ctt', title: '試題分析 (CTT)', icon: '📊' },
-  { key: 'scoring', title: '成績計算 (Scoring)', icon: '📝' },
-  { key: 'batch', title: '全科批次處理 (Batch)', icon: '🚀' },
-  { key: 'about', title: '演算法規格 (Specs)', icon: 'ℹ️' }
+  { key: 'ctt', title: '試題分析 (CTT)', icon: BarChart3 },
+  { key: 'scoring', title: '成績計算 (Scoring)', icon: GraduationCap },
+  { key: 'batch', title: '全科批次處理 (Batch)', icon: Layers },
+  { key: 'about', title: '演算法規格 (Specs)', icon: BookOpen }
 ]
 </script>

@@ -20,13 +20,16 @@
         @drop.prevent="handleBatchDrop"
       >
         <input type="file" multiple accept=".xlsx,.csv,.zip" class="absolute inset-0 opacity-0 cursor-pointer" @change="handleBatchSelect" />
-        <div class="text-4xl mb-2">📦</div>
+        <div class="flex justify-center mb-2">
+          <Archive class="w-10 h-10 text-[#7ea172] stroke-[1.5]" />
+        </div>
         <div class="text-xs sm:text-sm font-bold text-[#354f52]">
           {{ batchFiles.length > 0 ? `已選擇 ${batchFiles.length} 個檔案` : '拖曳多個檔案或 ZIP 壓縮檔至此' }}
         </div>
         <div class="text-[11px] text-slate-400 mt-1">系統自動辨識考科 (國語/數學/英語/自然) 與年級 (3~8, 7n)</div>
-        <div v-if="batchFiles.length > 0" class="mt-2 text-xs font-bold text-[#7ea172]">
-          ✅ 包含：{{ batchFiles.map(f => f.name).slice(0, 3).join(', ') }}{{ batchFiles.length > 3 ? ` 等共 ${batchFiles.length} 檔` : '' }}
+        <div v-if="batchFiles.length > 0" class="mt-2 text-xs font-bold text-[#7ea172] flex items-center justify-center gap-1">
+          <CheckCircle2 class="w-3.5 h-3.5" />
+          <span>包含：{{ batchFiles.map(f => f.name).slice(0, 3).join(', ') }}{{ batchFiles.length > 3 ? ` 等共 ${batchFiles.length} 檔` : '' }}</span>
         </div>
       </div>
 
@@ -34,9 +37,9 @@
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-slate-600">批次執行模式</label>
           <select v-model="batchMode" class="h-9 px-3 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#7ea172] focus:ring-2 focus:ring-[#7ea172]/20 transition">
-            <option value="all">⚡ 雙軌執行 (試題分析 + 成績計算)</option>
-            <option value="ctt">📊 僅執行試題分析 (CTT Analysis)</option>
-            <option value="scoring">📝 僅執行成績計算 (Score Calculation)</option>
+            <option value="all">雙軌執行 (試題分析 + 成績計算)</option>
+            <option value="ctt">僅執行試題分析 (CTT Analysis)</option>
+            <option value="scoring">僅執行成績計算 (Score Calculation)</option>
           </select>
         </div>
 
@@ -47,7 +50,8 @@
             :disabled="isRunning || batchFiles.length === 0"
             class="h-9 px-5 bg-[#52796f] hover:bg-[#354f52] disabled:bg-slate-400 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
-            <span>🚀 啟動全科批次管線</span>
+            <Play class="w-4 h-4 fill-white" />
+            <span>啟動全科批次管線</span>
           </button>
         </div>
       </div>
@@ -69,7 +73,8 @@
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 flex-wrap gap-3">
         <div>
           <h2 class="text-base sm:text-lg font-black text-[#203b46] flex items-center gap-2 m-0">
-            🏆 全科批次品質彙整表
+            <Award class="w-5 h-5 text-[#203b46]" />
+            <span>全科批次品質彙整表</span>
           </h2>
           <p class="text-xs text-slate-400 mt-0.5 m-0 font-medium">各科試題指標與品質已全數完成彙整</p>
         </div>
@@ -77,9 +82,10 @@
         <button
           type="button"
           @click="downloadMasterZip"
-          class="h-8 px-3.5 bg-[#52796f] hover:bg-[#354f52] text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer"
+          class="h-8 px-3.5 bg-[#52796f] hover:bg-[#354f52] text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
         >
-          📦 打包下載全部分析與成績報表 (ZIP)
+          <Archive class="w-4 h-4" />
+          <span>打包下載全部分析與成績報表 (ZIP)</span>
         </button>
       </div>
 
@@ -125,6 +131,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { Archive, CheckCircle2, Play, Award } from '@lucide/vue'
 import JSZip from 'jszip'
 import ExcelJS from 'exceljs'
 import CTTAnalyzer from '@/core/ctt.js'
@@ -272,7 +279,7 @@ async function runPipeline() {
     emit('log', '[Batch] 批次管線執行成功！')
   } catch (err) {
     alert('批次失敗: ' + err.message)
-    emit('log', '❌ 錯誤: ' + err.message)
+    emit('log', '[錯誤] ' + err.message)
   } finally {
     isRunning.value = false
   }

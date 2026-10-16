@@ -30,12 +30,17 @@
           @drop.prevent="handleDrop($event, 'ans')"
         >
           <input type="file" accept=".xlsx,.xls,.csv" class="absolute inset-0 opacity-0 cursor-pointer" @change="handleFileSelect($event, 'ans')" />
-          <div class="text-3xl mb-1.5">🔑</div>
+          <div class="flex justify-center mb-1.5">
+            <KeyRound class="w-8 h-8 text-[#52796f] stroke-[1.5]" />
+          </div>
           <div class="text-xs sm:text-sm font-bold text-[#354f52]">
             {{ ansFile ? `已選擇答案檔：${ansFile.name}` : '拖曳或選取【答案檔】(.xlsx / .csv)' }}
           </div>
           <div class="text-[11px] text-slate-400 mt-1">支援橫向題號格式、縱向單科或多科格式</div>
-          <div v-if="ansFile" class="mt-2 text-xs font-bold text-[#52796f]">✅ 檔案已載入 ({{ (ansFile.size / 1024).toFixed(1) }} KB)</div>
+          <div v-if="ansFile" class="mt-2 text-xs font-bold text-[#52796f] flex items-center justify-center gap-1">
+            <CheckCircle2 class="w-3.5 h-3.5" />
+            <span>檔案已載入 ({{ (ansFile.size / 1024).toFixed(1) }} KB)</span>
+          </div>
         </div>
 
         <!-- Response Dropzone -->
@@ -46,12 +51,17 @@
           @drop.prevent="handleDrop($event, 'resp')"
         >
           <input type="file" accept=".xlsx,.xls,.csv" class="absolute inset-0 opacity-0 cursor-pointer" @change="handleFileSelect($event, 'resp')" />
-          <div class="text-3xl mb-1.5">📝</div>
+          <div class="flex justify-center mb-1.5">
+            <FileSpreadsheet class="w-8 h-8 text-[#52796f] stroke-[1.5]" />
+          </div>
           <div class="text-xs sm:text-sm font-bold text-[#354f52]">
             {{ respFile ? `已選擇作答檔：${respFile.name}` : '拖曳或選取【作答檔 / 有效樣本】(.xlsx)' }}
           </div>
           <div class="text-[11px] text-slate-400 mt-1">自動排除缺考與無效，提取 item 1 ~ N 學生作答</div>
-          <div v-if="respFile" class="mt-2 text-xs font-bold text-[#52796f]">✅ 檔案已載入 ({{ (respFile.size / 1024).toFixed(1) }} KB)</div>
+          <div v-if="respFile" class="mt-2 text-xs font-bold text-[#52796f] flex items-center justify-center gap-1">
+            <CheckCircle2 class="w-3.5 h-3.5" />
+            <span>檔案已載入 ({{ (respFile.size / 1024).toFixed(1) }} KB)</span>
+          </div>
         </div>
       </div>
 
@@ -122,7 +132,8 @@
             :disabled="isRunning"
             class="h-9 px-5 bg-[#52796f] hover:bg-[#354f52] disabled:bg-slate-400 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
-            <span>⚡ 開始 CTT 試題分析</span>
+            <Play class="w-4 h-4 fill-white" />
+            <span>開始 CTT 試題分析</span>
           </button>
         </div>
       </div>
@@ -144,7 +155,8 @@
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 flex-wrap gap-3">
         <div>
           <h2 class="text-base sm:text-lg font-black text-[#203b46] flex items-center gap-2 m-0">
-            📈 試題分析品質總表與三等級分佈
+            <LineChart class="w-5 h-5 text-[#52796f]" />
+            <span>試題分析品質總表與三等級分佈</span>
           </h2>
           <p class="text-xs text-slate-400 mt-0.5 m-0 font-medium">全數值四捨五入至小數後 2 位 (0.00) ｜ 100% 精準對齊 R 語言</p>
         </div>
@@ -153,16 +165,18 @@
           <button
             type="button"
             @click="exportOfficialWorkbook"
-            class="h-8 px-3 bg-[#52796f] hover:bg-[#354f52] text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer"
+            class="h-8 px-3 bg-[#52796f] hover:bg-[#354f52] text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
           >
-            📥 匯出官方雙層總表與等級分析 (.xlsx)
+            <Download class="w-4 h-4" />
+            <span>匯出官方雙層總表與等級分析 (.xlsx)</span>
           </button>
           <button
             type="button"
             @click="exportClassicWorkbook"
-            class="h-8 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer"
+            class="h-8 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
           >
-            📥 匯出 R 經典格式檔 (.xlsx)
+            <Download class="w-4 h-4" />
+            <span>匯出 R 經典格式檔 (.xlsx)</span>
           </button>
         </div>
       </div>
@@ -325,6 +339,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { KeyRound, FileSpreadsheet, Play, LineChart, Download, CheckCircle2 } from '@lucide/vue'
 import ExcelJS from 'exceljs'
 import CTTAnalyzer from '@/core/ctt.js'
 import SAAAMath from '@/core/math.js'
@@ -553,7 +568,7 @@ async function runAnalysis() {
     emit('log', `[CTT] 分析完成！Cronbach's α = ${instance.alpha.toFixed(4)}, 平均通過率 = ${instance.avgPassRate.toFixed(2)}`)
   } catch (err) {
     alert('試題分析失敗: ' + err.message)
-    emit('log', '❌ 錯誤: ' + err.message)
+    emit('log', '[錯誤] ' + err.message)
   } finally {
     isRunning.value = false
   }
