@@ -472,35 +472,71 @@ async function runScoring() {
       }
     }
 
-    // Parse answers from workbook
-    const ansParsed = ScoringEngine.parseAnswerSheets(ansWb, subjCode, gVal)
-    if (userCutoffs) {
-      ansParsed.cutoffs = userCutoffs
-      ansParsed.calcLevel = true
-    }
+    // 1. 取得答案檔結構
+    const { ansRows, dimRows, cutRows } = ScoringEngine.parseAnswerWorkbook(ansWb)
 
-    // Parse student responses
-    const respParsed = ScoringEngine.parseResponses(respWs, ansParsed.activeItemCount)
+    // 2. 取得學生作答資料列
+    const respRows = []
+    respWs.eachRow({ includeEmpty: false }, r => {
+      respRows.push(r.values.slice(1).map(v => (v !== null && v !== undefined ? String(v).trim() : '')))
+    })
 
-    // Score all students
-    const scoredStudents = ScoringEngine.scoreAllStudents(
-      respParsed.students,
-      ansParsed.activeKeyVector,
-      ansParsed.activeDimensions,
-      ansParsed.activeItemCount,
-      ansParsed.cutoffs,
-      115,
-      ansParsed.cid,
-      2
-    )
+    // 3. 呼叫 ScoringEngine 執行批改
+    const scoreResult = ScoringEngine.scoreExam({
+      rawResponseRows: respRows,
+      ansRows,
+      dimRows,
+      cutRows,
+      subjectCode: subjCode,
+      grade: gVal,
+      masteryCutoff: userCutoffs ? userCutoffs.masteryCutoff : null,
+      basicCutoff: userCutoffs ? userCutoffs.basicCutoff : null,
+      digits: 2
+    })
 
-    // Compute ranks and summaries
-    const rankedStudents = SummaryEngine.buildRankedStudentScores(scoredStudents, ansParsed.uniqueDimensions, 2)
+    // 4. 計算全體排名與 PR 百分等級 (ties.method="max")
+    const nonAbsent = scoreResult.students.filter(s => !s.absentFlag)
+    const nTotalNonAbsent = nonAbsent.length
+    const sortedScores = [...nonAbsent].sort((a, b) => b.totalCorrectRate - a.totalCorrectRate)
+    const scoreRankMap = new Map()
+    sortedScores.forEach((s, idx) => {
+      if (!scoreRankMap.has(s.totalCorrectRate)) {
+        let lastIdx = idx
+        while (lastIdx + 1 < sortedScores.length && sortedScores[lastIdx + 1].totalCorrectRate === s.totalCorrectRate) {
+          lastIdx++
+        }
+        const rankAscending = nTotalNonAbsent - lastIdx
+        const rankDescending = idx + 1
+        const pr = Math.floor(((rankAscending - 1) / nTotalNonAbsent) * 100)
+        scoreRankMap.set(s.totalCorrectRate, { rank: rankDescending, pr })
+      }
+    })
+
+    const studentList = scoreResult.students.map(s => {
+      const rankInfo = (!s.absentFlag && scoreRankMap.has(s.totalCorrectRate))
+        ? scoreRankMap.get(s.totalCorrectRate)
+        : { rank: '-', pr: '-' }
+      return {
+        ...s,
+        id: s.id,
+        county_id: s.countyId,
+        school_code: s.schoolCode,
+        school_name: s.schoolName,
+        class_code: s.classCode,
+        seat_no: s.seatNo,
+        student_name: s.name,
+        nCorrect: s.totalCorrectCount,
+        correctRate: s.totalCorrectRate,
+        perfLevel: s.level,
+        overallRank: rankInfo.rank,
+        overallPR: rankInfo.pr
+      }
+    })
 
     scoringResult.value = {
-      students: rankedStudents,
-      ansParsed,
-      calcLevel: ansParsed.calcLevel
+      students: studentList,
+      scoreResult,
+      calcLevel: scoreResult.calcLevel
     }
 
     progressPct.value = 100
