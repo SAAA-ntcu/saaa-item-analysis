@@ -1,0 +1,39 @@
+{
+  "name": "saaa-item-analysis",
+  "version": "2.0.0",
+  "private": true,
+  "description": "SAAA 縣市學生學習能力檢測 - 試題分析 (CTT) 與成績計算系統 (Vue 3 旗艦版)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "cli": "node src/cli/cli.js",
+    "cli:ctt": "node src/cli/cli_ctt.js",
+    "cli:scoring": "node src/cli/cli_scoring.js",
+    "test": "node test/test_ground_truth.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "jszip": "^3.10.1",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.11"
+  },
+  "keywords": [
+    "saaa",
+    "ctt",
+    "item-analysis",
+    "score-calculation",
+    "vue3",
+    "vite",
+    "psychometrics"
+  ],
+  "author": "國立臺中教育大學 測驗統計與適性學習研究中心",
+  "license": "MIT"
+}

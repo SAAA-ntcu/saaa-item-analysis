@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", "Microsoft JhengHei", "微軟正黑體", sans-serif;
+  --morandi-primary: #52796f;
+  --morandi-primary-dark: #354f52;
+  --morandi-primary-light: #edf2ee;
+  --morandi-terracotta: #c47c5d;
+  --morandi-coral: #e07a5f;
+  --morandi-cover-from: #729289;
+  --morandi-cover-to: #5f7e76;
+  --morandi-oat: #d4a373;
+  --morandi-apricot: #e9c46a;
+  --morandi-rose: #c87d8a;
+  --morandi-sage: #7ea172;
+  --morandi-slate-dark: #2f3e46;
+  --morandi-spine-loop: #3f4e55;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: #2d3748;
+  background-color: #f6f8f7;
+  background-image: url('/images/login_background.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Spine loop styling */
+.spine-loop {
+  position: relative;
+  width: 120px;
+  height: 26px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.spine-inner {
+  position: absolute;
+  right: 3px;
+  width: 38px;
+  height: 26px;
+  border-radius: 9999px;
+  background: var(--morandi-spine-loop);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.45);
+  z-index: 10;
+}
+.spine-outer {
+  position: absolute;
+  left: 0;
+  width: 108px;
+  height: 11px;
+  border-radius: 9999px;
+  background: var(--morandi-terracotta);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  z-index: 20;
+}
+
+/* Ribbon Bookmarks */
+.ribbon-bookmark {
+  position: absolute;
+  top: -14px;
+  width: 44px;
+  height: 52px;
+  z-index: 15;
+  clip-path: polygon(50% 25%, 100% 0%, 100% 100%, 0% 100%, 0% 0%);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.ribbon-bookmark:hover {
+  transform: translateY(-5px);
+}
+.ribbon-oat {
+  right: 88px;
+  background: var(--morandi-oat);
+}
+.ribbon-slate {
+  right: 40px;
+  background: var(--morandi-slate-dark);
+}
+
+/* Index tabs */
+.index-tab {
+  width: 68px;
+  height: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+.index-tab:hover {
+  transform: translateX(10px);
+}
+.tab-rose {
+  background: var(--morandi-rose);
+  color: #fff;
+  clip-path: polygon(0% 0%, 75% 0%, 50% 50%, 75% 100%, 0% 100%);
+}
+.tab-apricot {
+  background: var(--morandi-apricot);
+  color: var(--morandi-primary-dark);
+  border-radius: 0 10px 10px 0;
+}
+.tab-sage {
+  background: var(--morandi-sage);
+  color: #fff;
+  border-radius: 0 9999px 9999px 0;
+}
