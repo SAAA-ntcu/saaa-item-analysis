@@ -137,8 +137,10 @@ import JSZip from 'jszip'
 import ExcelJS from 'exceljs'
 import CTTAnalyzer from '@/core/ctt.js'
 import { triggerDownload } from '@/utils/download.js'
+import { useToast } from '@/composables/useToast.js'
 
 const emit = defineEmits(['log'])
+const { warning, error, success } = useToast()
 
 const batchFiles = ref([])
 const batchMode = ref('all')
@@ -164,7 +166,11 @@ function handleBatchDrop(event) {
 }
 
 async function runPipeline() {
-  if (batchFiles.value.length === 0) return
+  if (batchFiles.value.length === 0) {
+    warning('請先拖曳或選取 ZIP 壓縮包或多科試題檔案！', '未選取批次檔案')
+    emit('log', '[提醒] 請先選取批次檔案！')
+    return
+  }
   isRunning.value = true
   progressPct.value = 5
   progressMsg.value = '正在檢查檔案格式與解壓...'
@@ -277,9 +283,10 @@ async function runPipeline() {
     batchResults.value = results
     progressPct.value = 100
     progressMsg.value = '全科批次管線執行完成！'
+    success('全科批次管線執行完成！已成功彙整所有科別。', '批次完成')
     emit('log', '[Batch] 批次管線執行成功！')
   } catch (err) {
-    alert('批次失敗: ' + err.message)
+    error('批次處理失敗：' + err.message, '批次異常')
     emit('log', '[錯誤] ' + err.message)
   } finally {
     isRunning.value = false

@@ -25,7 +25,10 @@
         <!-- Answer Dropzone -->
         <div
           class="border-2 border-dashed rounded-2xl p-5 text-center transition cursor-pointer relative"
-          :class="ansFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]'"
+          :class="[
+            ansFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]',
+            ansMissing ? 'ring-4 ring-[#e07a5f]/40 border-[#e07a5f] bg-[#fdf3f2]' : ''
+          ]"
           @dragover.prevent
           @drop.prevent="handleDrop($event, 'ans')"
         >
@@ -46,7 +49,10 @@
         <!-- Response Dropzone -->
         <div
           class="border-2 border-dashed rounded-2xl p-5 text-center transition cursor-pointer relative"
-          :class="respFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]'"
+          :class="[
+            respFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]',
+            respMissing ? 'ring-4 ring-[#e07a5f]/40 border-[#e07a5f] bg-[#fdf3f2]' : ''
+          ]"
           @dragover.prevent
           @drop.prevent="handleDrop($event, 'resp')"
         >
@@ -345,11 +351,15 @@ import CTTAnalyzer from '@/core/ctt.js'
 import SAAAMath from '@/core/math.js'
 import ItemTrendChart from './ItemTrendChart.vue'
 import { triggerDownload } from '@/utils/download.js'
+import { useToast } from '@/composables/useToast.js'
 
 const emit = defineEmits(['log'])
+const { warning, error, success } = useToast()
 
 const ansFile = ref(null)
 const respFile = ref(null)
+const ansMissing = ref(false)
+const respMissing = ref(false)
 const subject = ref('C')
 const grade = ref('7n')
 const enableLevel = ref(false)
@@ -461,7 +471,14 @@ function extractAnswersFromRows(rows, subjCode, grade) {
 
 async function runAnalysis() {
   if (!ansFile.value || !respFile.value) {
-    alert('請先選取答案檔與學生作答檔！')
+    if (!ansFile.value) ansMissing.value = true
+    if (!respFile.value) respMissing.value = true
+    setTimeout(() => {
+      ansMissing.value = false
+      respMissing.value = false
+    }, 2500)
+    warning('請先選取答案檔與學生作答檔後再開始分析！', '檔案未齊全')
+    emit('log', '[提醒] 請先選取答案檔與學生作答檔！')
     return
   }
 
@@ -542,7 +559,7 @@ async function runAnalysis() {
     let bCut = null
     if (enableLevel.value) {
       if (!masteryCutoff.value || !basicCutoff.value || masteryCutoff.value <= basicCutoff.value || basicCutoff.value < 0) {
-        alert('已勾選計算精熟等級，請輸入有效的精熟題數與基礎題數 (精熟 > 基礎 ≥ 0)！\n若不需要計算精熟等級，請取消勾選。')
+        warning('已勾選計算精熟等級，請輸入有效之精熟題數與基礎題數（需符合：精熟 > 基礎 ≥ 0）！\n若不需要計算精熟等級，請取消勾選。', '門檻設定不完整')
         isRunning.value = false
         return
       }
@@ -565,9 +582,10 @@ async function runAnalysis() {
     analyzer.value = instance
     progressPct.value = 100
     progressMsg.value = '試題分析完成！'
+    success(`試題分析完成！Cronbach's α = ${instance.alpha.toFixed(4)}, 平均通過率 = ${instance.avgPassRate.toFixed(2)}`, '分析完成')
     emit('log', `[CTT] 分析完成！Cronbach's α = ${instance.alpha.toFixed(4)}, 平均通過率 = ${instance.avgPassRate.toFixed(2)}`)
   } catch (err) {
-    alert('試題分析失敗: ' + err.message)
+    error('試題分析失敗：' + err.message, '分析異常')
     emit('log', '[錯誤] ' + err.message)
   } finally {
     isRunning.value = false

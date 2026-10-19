@@ -40,6 +40,10 @@
 
     <!-- Fixed Bottom Footer -->
     <AppFooter />
+
+    <!-- Global Toast & Modal Dialogs -->
+    <ToastContainer />
+    <ModalDialog />
   </div>
 </template>
 
@@ -48,6 +52,8 @@ import { ref } from 'vue'
 import AppHeader from './components/layout/AppHeader.vue'
 import NotebookFrame from './components/layout/NotebookFrame.vue'
 import AppFooter from './components/layout/AppFooter.vue'
+import ToastContainer from './components/common/ToastContainer.vue'
+import ModalDialog from './components/common/ModalDialog.vue'
 import CttTab from './components/tabs/CttTab.vue'
 import ScoringTab from './components/tabs/ScoringTab.vue'
 import BatchTab from './components/tabs/BatchTab.vue'

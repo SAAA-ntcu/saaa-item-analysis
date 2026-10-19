@@ -25,7 +25,10 @@
         <!-- Answer Dropzone -->
         <div
           class="border-2 border-dashed rounded-2xl p-5 text-center transition cursor-pointer relative"
-          :class="ansFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]'"
+          :class="[
+            ansFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]',
+            ansMissing ? 'ring-4 ring-[#e07a5f]/40 border-[#e07a5f] bg-[#fdf3f2]' : ''
+          ]"
           @dragover.prevent
           @drop.prevent="handleDrop($event, 'ans')"
         >
@@ -46,7 +49,10 @@
         <!-- Response Dropzone -->
         <div
           class="border-2 border-dashed rounded-2xl p-5 text-center transition cursor-pointer relative"
-          :class="respFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]'"
+          :class="[
+            respFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]',
+            respMissing ? 'ring-4 ring-[#e07a5f]/40 border-[#e07a5f] bg-[#fdf3f2]' : ''
+          ]"
           @dragover.prevent
           @drop.prevent="handleDrop($event, 'resp')"
         >
@@ -396,11 +402,15 @@ import ScoringEngine from '@/core/scoring.js'
 import SummaryEngine from '@/core/summaries.js'
 import SAAAMath from '@/core/math.js'
 import { triggerDownload } from '@/utils/download.js'
+import { useToast } from '@/composables/useToast.js'
 
 const emit = defineEmits(['log'])
+const { warning, error, success } = useToast()
 
 const ansFile = ref(null)
 const respFile = ref(null)
+const ansMissing = ref(false)
+const respMissing = ref(false)
 const subject = ref('C')
 const grade = ref('7n')
 const enableLevel = ref(false)
@@ -443,7 +453,14 @@ function normalizeStr(v) {
 
 async function runScoring() {
   if (!ansFile.value || !respFile.value) {
-    alert('請先選取答案檔與學生作答檔！')
+    if (!ansFile.value) ansMissing.value = true
+    if (!respFile.value) respMissing.value = true
+    setTimeout(() => {
+      ansMissing.value = false
+      respMissing.value = false
+    }, 2500)
+    warning('請先選取答案檔與學生作答檔後再開始計算！', '檔案未齊全')
+    emit('log', '[提醒] 請先選取答案檔與學生作答檔！')
     return
   }
 
@@ -476,7 +493,7 @@ async function runScoring() {
     let userCutoffs = null
     if (enableLevel.value) {
       if (!masteryCutoff.value || !basicCutoff.value || masteryCutoff.value <= basicCutoff.value || basicCutoff.value < 0) {
-        alert('已勾選計算精熟等級，請輸入有效的精熟題數與基礎題數 (精熟 > 基礎 ≥ 0)！')
+        warning('已勾選計算精熟等級，請輸入有效之精熟題數與基礎題數（需符合：精熟 > 基礎 ≥ 0）！', '門檻設定不完整')
         isRunning.value = false
         return
       }
@@ -556,9 +573,10 @@ async function runScoring() {
 
     progressPct.value = 100
     progressMsg.value = '成績計算完成！'
+    success(`成績計算完成，共處理 ${studentList.length.toLocaleString()} 名學生！`, '計算完成')
     emit('log', `[Scoring] 成績計算完成，共處理 ${studentList.length} 名學生！`)
   } catch (err) {
-    alert('成績計算失敗: ' + err.message)
+    error('成績計算失敗：' + err.message, '計算異常')
     emit('log', '[錯誤] ' + err.message)
   } finally {
     isRunning.value = false
