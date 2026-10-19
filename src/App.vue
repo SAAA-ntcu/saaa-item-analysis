@@ -18,8 +18,8 @@
       <AboutTab v-show="currentTab === 'about'" />
 
       <!-- Live Console Log Viewer -->
-      <div class="mt-5 bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs">
-        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+      <div class="mt-5 bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs min-w-0 max-w-full overflow-hidden">
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 flex-wrap gap-2">
           <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5 m-0">
             <svg class="w-4 h-4 text-[#52796f]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             系統執行日誌 (Live Console)
@@ -32,8 +32,8 @@
             清空日誌
           </button>
         </div>
-        <div class="bg-[#f4f7f5] border border-slate-200/80 text-slate-700 rounded-xl p-3 font-mono text-xs max-h-36 overflow-y-auto space-y-1">
-          <div v-for="(log, idx) in logs" :key="idx" class="whitespace-pre-wrap leading-relaxed py-0.5 border-b border-slate-200/50 last:border-b-0 text-slate-600 font-medium">{{ log }}</div>
+        <div class="bg-[#f4f7f5] border border-slate-200/80 text-slate-700 rounded-xl p-3 font-mono text-xs max-h-36 overflow-y-auto space-y-1 min-w-0 max-w-full">
+          <div v-for="(log, idx) in logs" :key="idx" class="whitespace-pre-wrap break-words leading-relaxed py-0.5 border-b border-slate-200/50 last:border-b-0 text-slate-600 font-medium">{{ log }}</div>
         </div>
       </div>
     </NotebookFrame>
