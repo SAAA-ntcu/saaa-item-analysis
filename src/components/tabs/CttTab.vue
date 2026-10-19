@@ -372,6 +372,56 @@ const progressMsg = ref('')
 const analyzer = ref(null)
 const activeSubtab = ref('summary')
 
+function autoDetectSubjectAndGrade(fileName) {
+  if (!fileName) return
+  const fn = String(fileName).trim()
+
+  let detectedSubj = null
+  if (/英語|英文|English|[_\b]E[_\b0-9]|E7|E8|E3|E4|E5|E6/i.test(fn)) {
+    detectedSubj = 'E'
+  } else if (/數學|Math|[_\b]M[_\b0-9]|M7|M8|M3|M4|M5|M6/i.test(fn)) {
+    detectedSubj = 'M'
+  } else if (/國語|國文|Chinese|[_\b]C[_\b0-9]|C7|C8|C3|C4|C5|C6/i.test(fn)) {
+    detectedSubj = 'C'
+  } else if (/自然|理化|Science|[_\b]S[_\b0-9]|S7|S8|S3|S4|S5|S6/i.test(fn)) {
+    detectedSubj = 'S'
+  }
+
+  let detectedGrade = null
+  if (/7N|7n|新生|七年級新生/i.test(fn)) {
+    detectedGrade = '7n'
+  } else if (/8年級|八年級|[_\b]8[_\b]/i.test(fn)) {
+    detectedGrade = '8'
+  } else if (/7年級|七年級|[_\b]7[_\b]/i.test(fn)) {
+    detectedGrade = '7'
+  } else if (/6年級|六年級|[_\b]6[_\b]/i.test(fn)) {
+    detectedGrade = '6'
+  } else if (/5年級|五年級|[_\b]5[_\b]/i.test(fn)) {
+    detectedGrade = '5'
+  } else if (/4年級|四年級|[_\b]4[_\b]/i.test(fn)) {
+    detectedGrade = '4'
+  } else if (/3年級|三年級|[_\b]3[_\b]/i.test(fn)) {
+    detectedGrade = '3'
+  }
+
+  const subjMap = { C: '國語文 (C)', M: '數學 (M)', E: '英語 (E)', S: '自然 (S)' }
+  const gradeMap = { '3': '3 年級', '4': '4 年級', '5': '5 年級', '6': '6 年級', '7': '7 年級', '7n': '7n (七年級新生)', '8': '8 年級' }
+
+  const msg = []
+  if (detectedSubj && detectedSubj !== subject.value) {
+    subject.value = detectedSubj
+    msg.push(`考科：${subjMap[detectedSubj]}`)
+  }
+  if (detectedGrade && detectedGrade !== grade.value) {
+    grade.value = detectedGrade
+    msg.push(`年級：${gradeMap[detectedGrade]}`)
+  }
+
+  if (msg.length > 0) {
+    emit('log', `[智慧偵測] 檔案特徵吻合，已自動切換為 ${msg.join('、')}`)
+  }
+}
+
 function handleFileSelect(event, type) {
   const file = event.target.files?.[0]
   if (!file) return
@@ -382,6 +432,7 @@ function handleFileSelect(event, type) {
     respFile.value = file
     emit('log', `[CTT] 已選擇作答檔: ${file.name}`)
   }
+  autoDetectSubjectAndGrade(file.name)
 }
 
 function handleDrop(event, type) {
@@ -394,6 +445,7 @@ function handleDrop(event, type) {
     respFile.value = file
     emit('log', `[CTT] 拖曳載入作答檔: ${file.name}`)
   }
+  autoDetectSubjectAndGrade(file.name)
 }
 
 function normalizeStr(v) {
@@ -517,7 +569,9 @@ async function runAnalysis() {
     const headers = respWs.getRow(1).values.slice(1).map(normalizeStr)
     const itemCols = []
     headers.forEach((h, idx) => {
-      if (/^(item|Item|第)[ ._]?[0-9]+/i.test(h)) itemCols.push(idx)
+      if (/^(item|Item|第)[ ._]?[0-9]+/i.test(h) || (/^[0-9]+$/.test(h) && parseInt(h, 10) >= 1 && parseInt(h, 10) <= 200)) {
+        itemCols.push(idx)
+      }
     })
     const excludeIdxs = []
     headers.forEach((h, idx) => {

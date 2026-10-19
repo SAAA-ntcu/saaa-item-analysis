@@ -33,7 +33,9 @@ async function runCTTTask({ code, name, grade, ansFile, resFile, outputDir, desk
   const headers = respWs.getRow(1).values.slice(1).map(v => String(v || "").trim());
   const itemCols = [];
   headers.forEach((h, idx) => {
-    if (/^(item|Item|第)[ ._]?[0-9]+/i.test(h)) itemCols.push(idx);
+    if (/^(item|Item|第)[ ._]?[0-9]+/i.test(h) || (/^[0-9]+$/.test(h) && parseInt(h, 10) >= 1 && parseInt(h, 10) <= 200)) {
+      itemCols.push(idx);
+    }
   });
 
   const excludeIdxs = [];

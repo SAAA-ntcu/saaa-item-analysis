@@ -423,6 +423,56 @@ const progressMsg = ref('')
 const scoringResult = ref(null)
 const activeSubtab = ref('personal')
 
+function autoDetectSubjectAndGrade(fileName) {
+  if (!fileName) return
+  const fn = String(fileName).trim()
+
+  let detectedSubj = null
+  if (/英語|英文|English|[_\b]E[_\b0-9]|E7|E8|E3|E4|E5|E6/i.test(fn)) {
+    detectedSubj = 'E'
+  } else if (/數學|Math|[_\b]M[_\b0-9]|M7|M8|M3|M4|M5|M6/i.test(fn)) {
+    detectedSubj = 'M'
+  } else if (/國語|國文|Chinese|[_\b]C[_\b0-9]|C7|C8|C3|C4|C5|C6/i.test(fn)) {
+    detectedSubj = 'C'
+  } else if (/自然|理化|Science|[_\b]S[_\b0-9]|S7|S8|S3|S4|S5|S6/i.test(fn)) {
+    detectedSubj = 'S'
+  }
+
+  let detectedGrade = null
+  if (/7N|7n|新生|七年級新生/i.test(fn)) {
+    detectedGrade = '7n'
+  } else if (/8年級|八年級|[_\b]8[_\b]/i.test(fn)) {
+    detectedGrade = '8'
+  } else if (/7年級|七年級|[_\b]7[_\b]/i.test(fn)) {
+    detectedGrade = '7'
+  } else if (/6年級|六年級|[_\b]6[_\b]/i.test(fn)) {
+    detectedGrade = '6'
+  } else if (/5年級|五年級|[_\b]5[_\b]/i.test(fn)) {
+    detectedGrade = '5'
+  } else if (/4年級|四年級|[_\b]4[_\b]/i.test(fn)) {
+    detectedGrade = '4'
+  } else if (/3年級|三年級|[_\b]3[_\b]/i.test(fn)) {
+    detectedGrade = '3'
+  }
+
+  const subjMap = { C: '國語文 (C)', M: '數學 (M)', E: '英語 (E)', S: '自然 (S)' }
+  const gradeMap = { '3': '3 年級', '4': '4 年級', '5': '5 年級', '6': '6 年級', '7': '7 年級', '7n': '7n (七年級新生)', '8': '8 年級' }
+
+  const msg = []
+  if (detectedSubj && detectedSubj !== subject.value) {
+    subject.value = detectedSubj
+    msg.push(`考科：${subjMap[detectedSubj]}`)
+  }
+  if (detectedGrade && detectedGrade !== grade.value) {
+    grade.value = detectedGrade
+    msg.push(`年級：${gradeMap[detectedGrade]}`)
+  }
+
+  if (msg.length > 0) {
+    emit('log', `[智慧偵測] 檔案特徵吻合，已自動切換為 ${msg.join('、')}`)
+  }
+}
+
 function handleFileSelect(event, type) {
   const file = event.target.files?.[0]
   if (!file) return
@@ -433,6 +483,7 @@ function handleFileSelect(event, type) {
     respFile.value = file
     emit('log', `[Scoring] 已選擇作答檔: ${file.name}`)
   }
+  autoDetectSubjectAndGrade(file.name)
 }
 
 function handleDrop(event, type) {
@@ -445,6 +496,7 @@ function handleDrop(event, type) {
     respFile.value = file
     emit('log', `[Scoring] 拖曳載入作答檔: ${file.name}`)
   }
+  autoDetectSubjectAndGrade(file.name)
 }
 
 function normalizeStr(v) {
@@ -513,14 +565,41 @@ async function runScoring() {
       respRows.push(r.values.slice(1).map(v => (v !== null && v !== undefined ? String(v).trim() : '')))
     })
 
+    // 自動偵測或校驗考科與年級代碼 (若作答檔有明列考科年級欄)
+    let effectiveSubjCode = subjCode
+    let effectiveGrade = gVal
+    if (respRows.length >= 2) {
+      const headers = respRows[0]
+      const subjColIdx = headers.findIndex(h => /^(測驗科目代碼|科目代碼|考科代碼|科目)$/.test(h))
+      if (subjColIdx !== -1) {
+        const fileSubj = String(respRows[1][subjColIdx] || '').trim().toUpperCase()
+        if (['C', 'M', 'E', 'S'].includes(fileSubj)) {
+          if (fileSubj !== subjCode) {
+            emit('log', `[智慧校驗] 作答檔明列考科代碼為 ${fileSubj}，自動更正為正確考科`)
+            subject.value = fileSubj
+          }
+          effectiveSubjCode = fileSubj
+        }
+      }
+      const gradeColIdx = headers.findIndex(h => /^(測驗年級|年級)$/.test(h))
+      if (gradeColIdx !== -1) {
+        const fileGrade = String(respRows[1][gradeColIdx] || '').trim().toLowerCase()
+        if (fileGrade && fileGrade !== gVal) {
+          emit('log', `[智慧校驗] 作答檔明列年級為 ${fileGrade}，自動同步年級`)
+          grade.value = fileGrade
+          effectiveGrade = fileGrade
+        }
+      }
+    }
+
     // 3. 呼叫 ScoringEngine 執行批改
     const scoreResult = ScoringEngine.scoreExam({
       rawResponseRows: respRows,
       ansRows,
       dimRows,
       cutRows,
-      subjectCode: subjCode,
-      grade: gVal,
+      subjectCode: effectiveSubjCode,
+      grade: effectiveGrade,
       masteryCutoff: userCutoffs ? userCutoffs.masteryCutoff : null,
       basicCutoff: userCutoffs ? userCutoffs.basicCutoff : null,
       digits: 2

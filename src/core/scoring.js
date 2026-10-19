@@ -72,12 +72,25 @@ class ScoringEngine {
   static extractKeyVector(ansRows, subjectCode, grade) {
     if (!ansRows || ansRows.length === 0) return [];
 
-    const targetCol = `${subjectCode.toUpperCase()}${grade}`;
-    const targetColN = `${targetCol}N`;
+    const cleanGrade = String(grade).toUpperCase().replace(/N$/, "");
+    const cleanSubj = subjectCode ? String(subjectCode).toUpperCase() : "";
+    const targetCandidates = [
+      `${cleanSubj}${grade}`.toUpperCase(),
+      `${cleanSubj}${cleanGrade}`.toUpperCase(),
+      `${cleanSubj}${cleanGrade}N`.toUpperCase()
+    ];
 
-    // 1. 檢查是否為縱向多欄格式 (如 R 標準答案表：欄位名稱含 C7, M7, E7 等)
+    // 1. 檢查是否為縱向多欄格式 (如 R 標準答案表：欄位名稱含 C7, M7, E7, E7N 等)
     const headerRow = ansRows[0].map(h => this.normalizeString(h).toUpperCase());
-    let targetColIdx = headerRow.findIndex(h => h === targetCol || h === targetColN);
+    let targetColIdx = headerRow.findIndex(h => targetCandidates.includes(h));
+
+    // 若未精確匹配，但在單一考科答案表中存在明確的科目欄（如檔內只有 E7 或 E7N）
+    if (targetColIdx === -1) {
+      const anySubjIdx = headerRow.findIndex(h => /^[CMES][3-8]N?$/.test(h));
+      if (anySubjIdx !== -1) {
+        targetColIdx = anySubjIdx;
+      }
+    }
     
     if (targetColIdx !== -1 && ansRows.length >= 3) {
       const keys = [];
@@ -237,10 +250,11 @@ class ScoringEngine {
     const headers = rawRows[0].map(h => this.normalizeString(h));
     const dataRows = rawRows.slice(1);
 
-    // 找出作答題目的起始欄位
+    // 找出作答題目的起始欄位 (支援 item1 ~ N、第 1 ~ N 題、或純數字 1 ~ N)
     let itemIndices = [];
     headers.forEach((h, idx) => {
-      if (/^(item|Item|第)[ ._]?[0-9]+/i.test(h)) {
+      const isItem = /^(item|Item|第)[ ._]?[0-9]+/i.test(h) || (/^[0-9]+$/.test(h) && parseInt(h, 10) >= 1 && parseInt(h, 10) <= 200);
+      if (isItem) {
         itemIndices.push(idx);
       }
     });
