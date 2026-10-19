@@ -26,6 +26,8 @@ class ScoringEngine {
     // 支援 &#32317; 與 &#x7e3d; 解碼
     s = s.replace(/&#([0-9]+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)));
     s = s.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+    // 對齊 R 語言 utils.R: 去除 Excel 浮點數轉換產生的 .0 後綴 (如 1.0 -> 1)
+    s = s.replace(/\.0$/, "");
     return s.trim();
   }
 

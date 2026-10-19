@@ -3,14 +3,14 @@
  * 整合「成績計算」與「CTT 試題分析」，支援批次多科目自動化處理、即時進度回調與檔案匯出。
  */
 
-const ExcelJS = require("exceljs");
-const path = require("path");
-const fs = require("fs");
-const ScoringEngine = require("./scoring");
-const SummaryEngine = require("./summaries");
-const CTTAnalyzer = require("./ctt");
-const ExcelExporter = require("./exporter");
-const SAAAMath = require("./math");
+import ExcelJS from "exceljs";
+import path from "path";
+import fs from "fs";
+import ScoringEngine from "./scoring.js";
+import SummaryEngine from "./summaries.js";
+import CTTAnalyzer from "./ctt.js";
+import ExcelExporter from "./exporter.js";
+import SAAAMath from "./math.js";
 
 class SAAABatchPipeline {
   constructor({
@@ -232,4 +232,5 @@ class SAAABatchPipeline {
   }
 }
 
-module.exports = SAAABatchPipeline;
+export default SAAABatchPipeline;
+export { SAAABatchPipeline };

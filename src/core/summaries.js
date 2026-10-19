@@ -477,7 +477,7 @@ class SummaryEngine {
     const nTotalNonAbsent = nonAbsent.length;
     const hasLevel = students.some(s => s.level !== null);
 
-    // 全體排名：由高到低，同分取最大排名 (ties.method="max")
+    // 1. 全體排名：由高到低，同分取最大排名 (ties.method="max")
     const sortedScores = [...nonAbsent].sort((a, b) => b.totalCorrectRate - a.totalCorrectRate);
     const scoreRankMap = new Map();
     sortedScores.forEach((s, idx) => {
@@ -492,10 +492,39 @@ class SummaryEngine {
       }
     });
 
+    // 2. 縣市分組排名與 PR (ties.method="max", 嚴格對齊 R 語言 personal_dt by=縣市)
+    const cityGroups = new Map();
+    nonAbsent.forEach(s => {
+      const c = s.city || "本市";
+      if (!cityGroups.has(c)) cityGroups.set(c, []);
+      cityGroups.get(c).push(s);
+    });
+
+    const cityRankMaps = new Map();
+    cityGroups.forEach((cStudents, cityName) => {
+      const nCity = cStudents.length;
+      const sortedCity = [...cStudents].sort((a, b) => b.totalCorrectRate - a.totalCorrectRate);
+      const cMap = new Map();
+      sortedCity.forEach((s, idx) => {
+        if (!cMap.has(s.totalCorrectRate)) {
+          const rAsc = nCity - idx;
+          const rDesc = idx + 1;
+          const pr = Math.floor(((rAsc - 1) / nCity) * 100);
+          cMap.set(s.totalCorrectRate, { rank: rDesc, pr });
+        }
+      });
+      cityRankMaps.set(cityName, cMap);
+    });
+
     return students.map(s => {
       const isAbsent = s.absentFlag;
       const rankInfo = (!isAbsent && scoreRankMap.has(s.totalCorrectRate))
         ? scoreRankMap.get(s.totalCorrectRate)
+        : { rank: "-", pr: "-" };
+
+      const cMap = cityRankMaps.get(s.city || "本市");
+      const cityRankInfo = (!isAbsent && cMap && cMap.has(s.totalCorrectRate))
+        ? cMap.get(s.totalCorrectRate)
         : { rank: "-", pr: "-" };
 
       const row = {
@@ -518,6 +547,12 @@ class SummaryEngine {
 
       row["全體排名"] = isAbsent ? "-" : rankInfo.rank;
       row["全體PR"] = isAbsent ? "-" : rankInfo.pr;
+      row["縣市排名"] = isAbsent ? "-" : cityRankInfo.rank;
+      row["縣市PR"] = isAbsent ? "-" : cityRankInfo.pr;
+      row["名次(各縣市)"] = row["縣市排名"];
+      row["名次(全體參與)"] = row["全體排名"];
+      row["PR值(各縣市)"] = row["縣市PR"];
+      row["PR值(參與全體)"] = row["全體PR"];
       row["缺考"] = s.absentFlag ? "1" : "0";
       row["特殊生"] = s.isSpecial123 ? "1" : "0";
       row["身分別"] = s.familyType;

@@ -5,13 +5,13 @@
  * 執行指令: node cli_ctt.js
  */
 
-const path = require("path");
-const fs = require("fs");
-const ExcelJS = require("exceljs");
-const ScoringEngine = require("./src/scoring");
-const CTTAnalyzer = require("./src/ctt");
-const ExcelExporter = require("./src/exporter");
-const SAAAMath = require("./src/math");
+import path from "path";
+import fs from "fs";
+import ExcelJS from "exceljs";
+import ScoringEngine from "../core/scoring.js";
+import CTTAnalyzer from "../core/ctt.js";
+import ExcelExporter from "../core/exporter.js";
+import SAAAMath from "../core/math.js";
 
 async function runCTTTask({ code, name, grade, ansFile, resFile, outputDir, desktopDir, masteryCutoff = null, basicCutoff = null, digits = 2 }) {
   const gradeLabel = String(grade).toUpperCase() === '7N' ? '七年級新生' : `${grade}年級`;

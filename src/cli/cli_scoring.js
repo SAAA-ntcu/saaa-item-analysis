@@ -5,12 +5,12 @@
  * 執行指令: node cli_scoring.js
  */
 
-const path = require("path");
-const fs = require("fs");
-const ExcelJS = require("exceljs");
-const ScoringEngine = require("./src/scoring");
-const SummaryEngine = require("./src/summaries");
-const ExcelExporter = require("./src/exporter");
+import path from "path";
+import fs from "fs";
+import ExcelJS from "exceljs";
+import ScoringEngine from "../core/scoring.js";
+import SummaryEngine from "../core/summaries.js";
+import ExcelExporter from "../core/exporter.js";
 
 async function runScoringTask({ code, name, grade, ansFile, resFile, outputDir, userMasteryCut = null, userBasicCut = null, digits = 2 }) {
   const gradeLabel = String(grade).toUpperCase() === '7N' ? '七年級新生' : `${grade}年級`;
