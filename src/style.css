@@ -24,12 +24,14 @@ body {
   min-height: 100vh;
   color: #2d3748;
   background-color: #f6f8f7;
-  background-image: url('/images/login_background.svg');
+}
+
+.main_bg {
+  background-image: url('./assets/images/login_background.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  overflow-x: hidden;
 }
 
 /* Custom scrollbar */
@@ -99,35 +101,4 @@ body {
   background: var(--morandi-slate-dark);
 }
 
-/* Index tabs */
-.index-tab {
-  width: 68px;
-  height: 50px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 10px;
-  font-size: 11px;
-  font-weight: 700;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-}
-.index-tab:hover {
-  transform: translateX(10px);
-}
-.tab-rose {
-  background: var(--morandi-rose);
-  color: #fff;
-  clip-path: polygon(0% 0%, 75% 0%, 50% 50%, 75% 100%, 0% 100%);
-}
-.tab-apricot {
-  background: var(--morandi-apricot);
-  color: var(--morandi-primary-dark);
-  border-radius: 0 10px 10px 0;
-}
-.tab-sage {
-  background: var(--morandi-sage);
-  color: #fff;
-  border-radius: 0 9999px 9999px 0;
-}
+

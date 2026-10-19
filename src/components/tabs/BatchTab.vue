@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 flex-wrap gap-2">
         <div>
           <h2 class="text-base sm:text-lg font-black text-[#203b46] flex items-center gap-2 m-0">
-            <svg class="w-5 h-5 text-[#7ea172]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+            <svg class="w-5 h-5 text-[#52796f]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
             全科全自動批次處理管線
           </h2>
           <p class="text-xs text-slate-400 mt-0.5 m-0 font-medium">
@@ -15,19 +15,20 @@
 
       <!-- Dropzone for multiple files / ZIP -->
       <div
-        class="border-2 border-dashed border-[#7ea172]/50 hover:border-[#7ea172] bg-[#f8faf8] hover:bg-[#eef5ee] rounded-2xl p-8 text-center transition cursor-pointer relative mb-4"
+        class="border-2 border-dashed rounded-2xl p-8 text-center transition cursor-pointer relative mb-4"
+        :class="batchFiles.length > 0 ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]'"
         @dragover.prevent
         @drop.prevent="handleBatchDrop"
       >
         <input type="file" multiple accept=".xlsx,.csv,.zip" class="absolute inset-0 opacity-0 cursor-pointer" @change="handleBatchSelect" />
         <div class="flex justify-center mb-2">
-          <Archive class="w-10 h-10 text-[#7ea172] stroke-[1.5]" />
+          <Archive class="w-10 h-10 text-[#52796f] stroke-[1.5]" />
         </div>
         <div class="text-xs sm:text-sm font-bold text-[#354f52]">
           {{ batchFiles.length > 0 ? `已選擇 ${batchFiles.length} 個檔案` : '拖曳多個檔案或 ZIP 壓縮檔至此' }}
         </div>
         <div class="text-[11px] text-slate-400 mt-1">系統自動辨識考科 (國語/數學/英語/自然) 與年級 (3~8, 7n)</div>
-        <div v-if="batchFiles.length > 0" class="mt-2 text-xs font-bold text-[#7ea172] flex items-center justify-center gap-1">
+        <div v-if="batchFiles.length > 0" class="mt-2 text-xs font-bold text-[#52796f] flex items-center justify-center gap-1">
           <CheckCircle2 class="w-3.5 h-3.5" />
           <span>包含：{{ batchFiles.map(f => f.name).slice(0, 3).join(', ') }}{{ batchFiles.length > 3 ? ` 等共 ${batchFiles.length} 檔` : '' }}</span>
         </div>
@@ -36,7 +37,7 @@
       <div class="flex items-center gap-3.5 flex-wrap">
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-slate-600">批次執行模式</label>
-          <select v-model="batchMode" class="h-9 px-3 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#7ea172] focus:ring-2 focus:ring-[#7ea172]/20 transition">
+          <select v-model="batchMode" class="h-9 px-3 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#52796f] focus:ring-2 focus:ring-[#52796f]/20 transition">
             <option value="all">雙軌執行 (試題分析 + 成績計算)</option>
             <option value="ctt">僅執行試題分析 (CTT Analysis)</option>
             <option value="scoring">僅執行成績計算 (Score Calculation)</option>
@@ -59,7 +60,7 @@
       <!-- Batch Progress -->
       <div v-if="isRunning" class="mt-4">
         <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-[#7ea172] to-[#52796f] transition-all duration-300" :style="{ width: `${progressPct}%` }"></div>
+          <div class="h-full bg-gradient-to-r from-[#52796f] to-[#7ea172] transition-all duration-300" :style="{ width: `${progressPct}%` }"></div>
         </div>
         <div class="flex justify-between items-center text-xs font-semibold text-slate-500 mt-1">
           <span>{{ progressMsg }}</span>
@@ -73,7 +74,7 @@
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 flex-wrap gap-3">
         <div>
           <h2 class="text-base sm:text-lg font-black text-[#203b46] flex items-center gap-2 m-0">
-            <Award class="w-5 h-5 text-[#203b46]" />
+            <Award class="w-5 h-5 text-[#52796f]" />
             <span>全科批次品質彙整表</span>
           </h2>
           <p class="text-xs text-slate-400 mt-0.5 m-0 font-medium">各科試題指標與品質已全數完成彙整</p>

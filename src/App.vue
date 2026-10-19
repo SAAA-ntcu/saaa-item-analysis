@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-screen pt-16 pb-20 select-none">
+  <div class="flex flex-col min-h-screen overflow-x-hidden main_bg pt-16 lg:pt-20 pb-28 md:pb-32 select-none">
     <!-- Fixed Top Header -->
     <AppHeader :active-tab="currentTab" @switch-tab="switchTab" />
 
@@ -32,8 +32,8 @@
             清空日誌
           </button>
         </div>
-        <div class="bg-slate-900 text-slate-200 rounded-xl p-3 font-mono text-xs max-h-36 overflow-y-auto space-y-1">
-          <div v-for="(log, idx) in logs" :key="idx" class="whitespace-pre-wrap leading-relaxed">{{ log }}</div>
+        <div class="bg-[#f4f7f5] border border-slate-200/80 text-slate-700 rounded-xl p-3 font-mono text-xs max-h-36 overflow-y-auto space-y-1">
+          <div v-for="(log, idx) in logs" :key="idx" class="whitespace-pre-wrap leading-relaxed py-0.5 border-b border-slate-200/50 last:border-b-0 text-slate-600 font-medium">{{ log }}</div>
         </div>
       </div>
     </NotebookFrame>

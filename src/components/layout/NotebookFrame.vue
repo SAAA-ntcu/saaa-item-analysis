@@ -27,29 +27,24 @@
         title="快速切換至成績計算"
       ></div>
 
-      <!-- Right Index Tabs (Rose, Apricot, Sage) -->
-      <div class="hidden lg:flex flex-col space-y-6 absolute -right-6 top-36 z-0">
+      <!-- Right Index Tabs (Dusty Rose, Warm Apricot, Muted Sage) -->
+      <div class="hidden lg:flex flex-col space-y-7 absolute -right-6 top-40 z-0">
         <div
-          class="index-tab tab-rose"
+          class="w-[72px] h-14 bg-[#c87d8a] transition-all duration-200 hover:translate-x-2.5 shadow-xs cursor-pointer"
+          style="clip-path: polygon(0% 0%, 75% 0%, 50% 50%, 75% 100%, 0% 100%)"
           @click="$emit('switch-tab', 'ctt')"
-          title="試題分析 (CTT)"
-        >
-          試題分析
-        </div>
+          title="切換至試題分析 (CTT)"
+        ></div>
         <div
-          class="index-tab tab-apricot"
+          class="w-[56px] h-14 bg-[#e9c46a] transition-all duration-200 hover:translate-x-2.5 shadow-xs cursor-pointer"
           @click="$emit('switch-tab', 'scoring')"
-          title="成績計算 (Scoring)"
-        >
-          成績計算
-        </div>
+          title="切換至成績計算 (Scoring)"
+        ></div>
         <div
-          class="index-tab tab-sage"
+          class="w-[72px] h-14 bg-[#7ea172] rounded-r-full transition-all duration-200 hover:translate-x-2.5 shadow-xs cursor-pointer"
           @click="$emit('switch-tab', 'batch')"
-          title="全科批次 (Batch)"
-        >
-          全科批次
-        </div>
+          title="切換至全科批次處理 (Batch)"
+        ></div>
       </div>
 
       <!-- Inner Notebook White Paper Page -->
@@ -60,22 +55,20 @@
       <!-- Bottom Left Boy Illustration -->
       <div class="hidden md:block absolute -bottom-12 -left-8 w-36 lg:w-44 z-30 pointer-events-none transform hover:scale-105 transition-transform duration-300">
         <img
-          src="/images/read_boy.png"
+          :src="readBoy"
           alt="認真讀書男孩"
           class="w-full h-auto drop-shadow-md"
           loading="lazy"
-          onerror="this.style.display='none'"
         />
       </div>
 
       <!-- Bottom Right Girl Illustration -->
       <div class="hidden md:block absolute -bottom-12 -right-8 w-36 lg:w-44 z-30 pointer-events-none transform hover:scale-105 transition-transform duration-300">
         <img
-          src="/images/read_girl.png"
+          :src="readGirl"
           alt="好好學習女孩"
           class="w-full h-auto drop-shadow-md"
           loading="lazy"
-          onerror="this.style.display='none'"
         />
       </div>
 
@@ -84,5 +77,8 @@
 </template>
 
 <script setup>
+import readBoy from '@/assets/images/read_boy.png'
+import readGirl from '@/assets/images/read_girl.png'
+
 defineEmits(['switch-tab'])
 </script>

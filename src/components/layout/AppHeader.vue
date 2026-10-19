@@ -2,7 +2,7 @@
   <header class="fixed top-0 left-0 right-0 h-[68px] bg-white/95 backdrop-blur-md border-b-2 border-[#52796f] shadow-xs z-50 flex items-center justify-between px-4 sm:px-6">
     <!-- Left Logo & Title -->
     <div class="flex items-center gap-3 cursor-pointer select-none group" @click="$emit('switch-tab', 'ctt')" title="回首頁">
-      <img src="/images/saaa-logo-icon.svg" alt="SAAA Logo" class="h-10 w-auto group-hover:scale-105 transition-transform" />
+      <img :src="logoIcon" alt="SAAA Logo" class="h-10 w-auto group-hover:scale-105 transition-transform" />
       <div class="flex flex-col justify-center">
         <h1 class="text-base sm:text-lg font-black text-[#203b46] tracking-wide leading-tight group-hover:text-[#52796f] transition-colors m-0">
           縣市學生學習能力檢測
@@ -33,7 +33,7 @@
     <!-- Right Mode Capsule -->
     <div class="flex items-center gap-2">
       <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 border border-slate-200/90 rounded-xl bg-white shadow-2xs text-xs text-slate-700">
-        <span class="px-2 py-0.5 rounded-md font-bold text-xs bg-[#e0f2fe] text-[#0284c7] border border-[#bae6fd]">
+        <span class="px-2 py-0.5 rounded-md font-bold text-xs bg-[#edf2ee] text-[#354f52] border border-[#52796f]/25">
           Vue 3 旗艦版
         </span>
         <span class="font-bold text-slate-800">純 JS 離線運算 · 0.00 規範</span>
@@ -44,6 +44,7 @@
 
 <script setup>
 import { BarChart3, GraduationCap, Layers, BookOpen } from '@lucide/vue'
+import logoIcon from '@/assets/images/saaa-logo-icon.svg'
 
 defineProps({
   activeTab: {

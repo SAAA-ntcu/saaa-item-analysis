@@ -5,7 +5,7 @@
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 flex-wrap gap-2">
         <div>
           <h2 class="text-base sm:text-lg font-black text-[#203b46] flex items-center gap-2 m-0">
-            <svg class="w-5 h-5 text-[#c47c5d]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            <svg class="w-5 h-5 text-[#52796f]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
             成績計算 (Score Calculation)
           </h2>
           <p class="text-xs text-slate-400 mt-0.5 m-0 font-medium">
@@ -25,19 +25,19 @@
         <!-- Answer Dropzone -->
         <div
           class="border-2 border-dashed rounded-2xl p-5 text-center transition cursor-pointer relative"
-          :class="ansFile ? 'border-[#c47c5d] bg-[#fbf5f2]' : 'border-[#c47c5d]/40 hover:border-[#c47c5d] bg-[#fbf5f2]/60 hover:bg-[#fbf5f2]'"
+          :class="ansFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]'"
           @dragover.prevent
           @drop.prevent="handleDrop($event, 'ans')"
         >
           <input type="file" accept=".xlsx,.xls,.csv" class="absolute inset-0 opacity-0 cursor-pointer" @change="handleFileSelect($event, 'ans')" />
           <div class="flex justify-center mb-1.5">
-            <KeyRound class="w-8 h-8 text-[#c47c5d] stroke-[1.5]" />
+            <KeyRound class="w-8 h-8 text-[#52796f] stroke-[1.5]" />
           </div>
           <div class="text-xs sm:text-sm font-bold text-[#354f52]">
             {{ ansFile ? `已選擇答案檔：${ansFile.name}` : '拖曳或選取【答案檔】(.xlsx)' }}
           </div>
           <div class="text-[11px] text-slate-400 mt-1">包含「答案」、「向度」、「等級門檻」工作表</div>
-          <div v-if="ansFile" class="mt-2 text-xs font-bold text-[#c47c5d] flex items-center justify-center gap-1">
+          <div v-if="ansFile" class="mt-2 text-xs font-bold text-[#52796f] flex items-center justify-center gap-1">
             <CheckCircle2 class="w-3.5 h-3.5" />
             <span>檔案已載入 ({{ (ansFile.size / 1024).toFixed(1) }} KB)</span>
           </div>
@@ -46,19 +46,19 @@
         <!-- Response Dropzone -->
         <div
           class="border-2 border-dashed rounded-2xl p-5 text-center transition cursor-pointer relative"
-          :class="respFile ? 'border-[#c47c5d] bg-[#fbf5f2]' : 'border-[#c47c5d]/40 hover:border-[#c47c5d] bg-[#fbf5f2]/60 hover:bg-[#fbf5f2]'"
+          :class="respFile ? 'border-[#52796f] bg-[#edf2ee]' : 'border-[#52796f]/40 hover:border-[#52796f] bg-[#f4f7f5]/70 hover:bg-[#edf2ee]'"
           @dragover.prevent
           @drop.prevent="handleDrop($event, 'resp')"
         >
           <input type="file" accept=".xlsx,.xls,.csv" class="absolute inset-0 opacity-0 cursor-pointer" @change="handleFileSelect($event, 'resp')" />
           <div class="flex justify-center mb-1.5">
-            <FileSpreadsheet class="w-8 h-8 text-[#c47c5d] stroke-[1.5]" />
+            <FileSpreadsheet class="w-8 h-8 text-[#52796f] stroke-[1.5]" />
           </div>
           <div class="text-xs sm:text-sm font-bold text-[#354f52]">
             {{ respFile ? `已選擇作答檔：${respFile.name}` : '拖曳或選取【作答檔】(.xlsx)' }}
           </div>
           <div class="text-[11px] text-slate-400 mt-1">包含學生基本資料、身分別與題目作答選項</div>
-          <div v-if="respFile" class="mt-2 text-xs font-bold text-[#c47c5d] flex items-center justify-center gap-1">
+          <div v-if="respFile" class="mt-2 text-xs font-bold text-[#52796f] flex items-center justify-center gap-1">
             <CheckCircle2 class="w-3.5 h-3.5" />
             <span>檔案已載入 ({{ (respFile.size / 1024).toFixed(1) }} KB)</span>
           </div>
@@ -70,7 +70,7 @@
         <!-- Subject -->
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-slate-600">測驗考科</label>
-          <select v-model="subject" class="h-9 px-3 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#c47c5d] focus:ring-2 focus:ring-[#c47c5d]/20 transition">
+          <select v-model="subject" class="h-9 px-3 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#52796f] focus:ring-2 focus:ring-[#52796f]/20 transition">
             <option value="C">國語文 (C)</option>
             <option value="M">數學 (M)</option>
             <option value="E">英語 (E)</option>
@@ -81,7 +81,7 @@
         <!-- Grade -->
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-slate-600">測驗年級 (正序)</label>
-          <select v-model="grade" class="h-9 px-3 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#c47c5d] focus:ring-2 focus:ring-[#c47c5d]/20 transition">
+          <select v-model="grade" class="h-9 px-3 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#52796f] focus:ring-2 focus:ring-[#52796f]/20 transition">
             <option value="3">3 年級</option>
             <option value="4">4 年級</option>
             <option value="5">5 年級</option>
@@ -94,8 +94,8 @@
 
         <!-- Enable Level Checkbox -->
         <div class="flex items-center gap-2 pt-5">
-          <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-bold text-[#c47c5d]">
-            <input type="checkbox" v-model="enableLevel" class="w-4 h-4 rounded text-[#c47c5d] focus:ring-[#c47c5d]" />
+          <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-bold text-[#354f52]">
+            <input type="checkbox" v-model="enableLevel" class="w-4 h-4 rounded text-[#52796f] focus:ring-[#52796f]" />
             <span>計算精熟等級 (手動門檻)</span>
           </label>
         </div>
@@ -108,7 +108,7 @@
             v-model.number="masteryCutoff"
             placeholder="如 23"
             min="1"
-            class="h-9 px-3 w-28 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#c47c5d] focus:ring-2 focus:ring-[#c47c5d]/20 transition"
+            class="h-9 px-3 w-28 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#52796f] focus:ring-2 focus:ring-[#52796f]/20 transition"
           />
         </div>
 
@@ -120,7 +120,7 @@
             v-model.number="basicCutoff"
             placeholder="如 15"
             min="1"
-            class="h-9 px-3 w-28 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#c47c5d] focus:ring-2 focus:ring-[#c47c5d]/20 transition"
+            class="h-9 px-3 w-28 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#52796f] focus:ring-2 focus:ring-[#52796f]/20 transition"
           />
         </div>
 
@@ -130,7 +130,7 @@
             type="button"
             @click="runScoring"
             :disabled="isRunning"
-            class="h-9 px-5 bg-[#c47c5d] hover:bg-[#a96649] disabled:bg-slate-400 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+            class="h-9 px-5 bg-[#52796f] hover:bg-[#354f52] disabled:bg-slate-400 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
             <Play class="w-4 h-4 fill-white" />
             <span>開始成績計算</span>
@@ -141,7 +141,7 @@
       <!-- Progress Bar -->
       <div v-if="isRunning" class="mt-3">
         <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-[#c47c5d] to-[#e9c46a] transition-all duration-300" :style="{ width: `${progressPct}%` }"></div>
+          <div class="h-full bg-gradient-to-r from-[#52796f] to-[#7ea172] transition-all duration-300" :style="{ width: `${progressPct}%` }"></div>
         </div>
         <div class="flex justify-between items-center text-xs font-semibold text-slate-500 mt-1">
           <span>{{ progressMsg }}</span>
@@ -155,7 +155,7 @@
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 flex-wrap gap-3">
         <div>
           <h2 class="text-base sm:text-lg font-black text-[#203b46] flex items-center gap-2 m-0">
-            <Award class="w-5 h-5 text-[#c47c5d]" />
+            <Award class="w-5 h-5 text-[#52796f]" />
             <span>成績計算與三等級描述彙總成果</span>
           </h2>
           <p class="text-xs text-slate-400 mt-0.5 m-0 font-medium">精熟 / 基礎 / 待加強 ｜ 扣除特殊生與含特殊生雙軌統計</p>
@@ -165,7 +165,7 @@
           <button
             type="button"
             @click="downloadPackage"
-            class="h-8 px-3 bg-[#c47c5d] hover:bg-[#a96649] text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+            class="h-8 px-3 bg-[#52796f] hover:bg-[#354f52] text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
           >
             <Archive class="w-4 h-4" />
             <span>下載成績計算 14 份報表套件 (ZIP)</span>
@@ -183,17 +183,17 @@
 
       <!-- Stats Cards Matrix -->
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-5">
-        <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs border-t-3 border-t-[#c47c5d]">
+        <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs border-t-3 border-t-[#52796f]">
           <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">到考總人數</div>
           <div class="text-lg font-black text-slate-800 mt-1">{{ validCount.toLocaleString() }}</div>
         </div>
 
-        <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs border-t-3 border-t-[#c47c5d]">
+        <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs border-t-3 border-t-[#52796f]">
           <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">缺考人數</div>
           <div class="text-lg font-black text-slate-800 mt-1">{{ absentCount.toLocaleString() }}</div>
         </div>
 
-        <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs border-t-3 border-t-[#c47c5d]">
+        <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs border-t-3 border-t-[#52796f]">
           <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">全卷平均答對率</div>
           <div class="text-lg font-black text-slate-800 mt-1">{{ avgCorrectRate }}%</div>
         </div>
@@ -223,7 +223,7 @@
           type="button"
           @click="activeSubtab = 'personal'"
           class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap"
-          :class="activeSubtab === 'personal' ? 'bg-[#c47c5d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+          :class="activeSubtab === 'personal' ? 'bg-[#52796f] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
         >
           學生個人成績與排名
         </button>
@@ -232,7 +232,7 @@
             type="button"
             @click="activeSubtab = 'county_level'"
             class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap"
-            :class="activeSubtab === 'county_level' ? 'bg-[#c47c5d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+            :class="activeSubtab === 'county_level' ? 'bg-[#52796f] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
           >
             縣市等級描述總表
           </button>
@@ -240,7 +240,7 @@
             type="button"
             @click="activeSubtab = 'school_level'"
             class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap"
-            :class="activeSubtab === 'school_level' ? 'bg-[#c47c5d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+            :class="activeSubtab === 'school_level' ? 'bg-[#52796f] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
           >
             各校等級描述總表
           </button>
@@ -248,7 +248,7 @@
             type="button"
             @click="activeSubtab = 'class_level'"
             class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap"
-            :class="activeSubtab === 'class_level' ? 'bg-[#c47c5d] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+            :class="activeSubtab === 'class_level' ? 'bg-[#52796f] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
           >
             各班等級描述總表
           </button>
@@ -273,7 +273,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(st, idx) in displayedStudents" :key="idx" class="border-b border-slate-100 hover:bg-[#fbf5f2] transition whitespace-nowrap">
+            <tr v-for="(st, idx) in displayedStudents" :key="idx" class="border-b border-slate-100 hover:bg-[#f4f7f5] transition whitespace-nowrap">
               <td class="p-2.5 font-mono">{{ st.county_id }}</td>
               <td class="p-2.5">{{ st.school_name }}</td>
               <td class="p-2.5">{{ st.class_code }}</td>
@@ -316,7 +316,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="c in countySummaries" :key="c.name" class="border-b border-slate-100 hover:bg-[#fbf5f2] transition whitespace-nowrap">
+            <tr v-for="c in countySummaries" :key="c.name" class="border-b border-slate-100 hover:bg-[#f4f7f5] transition whitespace-nowrap">
               <td class="p-2.5 font-bold">{{ c.name }}</td>
               <td class="p-2.5 font-mono">{{ c.validCount }}</td>
               <td class="p-2.5 font-mono">{{ (c.avgRate * 100).toFixed(2) }}%</td>
@@ -343,7 +343,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="s in schoolSummaries" :key="s.code" class="border-b border-slate-100 hover:bg-[#fbf5f2] transition whitespace-nowrap">
+            <tr v-for="s in schoolSummaries" :key="s.code" class="border-b border-slate-100 hover:bg-[#f4f7f5] transition whitespace-nowrap">
               <td class="p-2.5 font-mono">{{ s.code }}</td>
               <td class="p-2.5 font-bold">{{ s.name }}</td>
               <td class="p-2.5 font-mono">{{ s.validCount }}</td>
@@ -371,7 +371,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="cl in classSummaries" :key="cl.id" class="border-b border-slate-100 hover:bg-[#fbf5f2] transition whitespace-nowrap">
+            <tr v-for="cl in classSummaries" :key="cl.id" class="border-b border-slate-100 hover:bg-[#f4f7f5] transition whitespace-nowrap">
               <td class="p-2.5 font-bold">{{ cl.school }}</td>
               <td class="p-2.5 font-mono">{{ cl.classCode }}</td>
               <td class="p-2.5 font-mono">{{ cl.validCount }}</td>
