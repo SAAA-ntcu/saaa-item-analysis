@@ -481,14 +481,12 @@ class SummaryEngine {
     const sortedScores = [...nonAbsent].sort((a, b) => b.totalCorrectRate - a.totalCorrectRate);
     const scoreRankMap = new Map();
     sortedScores.forEach((s, idx) => {
-      // 在排序後找出同分的最後一個位置
       if (!scoreRankMap.has(s.totalCorrectRate)) {
-        let lastIdx = idx;
-        while (lastIdx + 1 < sortedScores.length && sortedScores[lastIdx + 1].totalCorrectRate === s.totalCorrectRate) {
-          lastIdx++;
-        }
-        const rankAscending = nTotalNonAbsent - lastIdx; // 從低到高的排名
-        const rankDescending = idx + 1; // 最高分第 1 名
+        // 在由大到小的降冪排序中，第 idx 位是該同分群在升冪排序（由小到大）中的最高順位
+        // 對應 R 語言: r_all <- rank(scores, ties.method="max") => nTotalNonAbsent - idx
+        // 名次為 idx + 1 (滿分同分群皆為第 1 名)
+        const rankAscending = nTotalNonAbsent - idx;
+        const rankDescending = idx + 1;
         const pr = Math.floor(((rankAscending - 1) / nTotalNonAbsent) * 100);
         scoreRankMap.set(s.totalCorrectRate, { rank: rankDescending, pr });
       }
