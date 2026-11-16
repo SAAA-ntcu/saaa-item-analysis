@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col min-h-screen overflow-x-hidden main_bg pt-16 lg:pt-20 pb-28 md:pb-32 select-none">
+  <div class="flex flex-col min-h-screen overflow-x-hidden main_bg pt-[112px] md:pt-20 pb-28 md:pb-32 select-none">
     <!-- Fixed Top Header -->
     <AppHeader :active-tab="currentTab" @switch-tab="switchTab" />
 
     <!-- Notebook Frame Shell -->
-    <NotebookFrame @switch-tab="switchTab">
+    <NotebookFrame>
       <!-- Tab 1: CTT Item Analysis -->
       <CttTab v-show="currentTab === 'ctt'" @log="addLog" />
 

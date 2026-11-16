@@ -76,29 +76,3 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
   z-index: 20;
 }
-
-/* Ribbon Bookmarks */
-.ribbon-bookmark {
-  position: absolute;
-  top: -14px;
-  width: 44px;
-  height: 52px;
-  z-index: 15;
-  clip-path: polygon(50% 25%, 100% 0%, 100% 100%, 0% 100%, 0% 0%);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-.ribbon-bookmark:hover {
-  transform: translateY(-5px);
-}
-.ribbon-oat {
-  right: 88px;
-  background: var(--morandi-oat);
-}
-.ribbon-slate {
-  right: 40px;
-  background: var(--morandi-slate-dark);
-}
-
-

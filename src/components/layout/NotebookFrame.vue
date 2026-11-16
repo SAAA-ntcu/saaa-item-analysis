@@ -15,38 +15,6 @@
         </div>
       </div>
 
-      <!-- Top Ribbon Bookmarks (Oat Mustard & Vintage Slate) -->
-      <div
-        class="ribbon-bookmark ribbon-oat"
-        @click="$emit('switch-tab', 'ctt')"
-        title="快速切換至試題分析"
-      ></div>
-      <div
-        class="ribbon-bookmark ribbon-slate"
-        @click="$emit('switch-tab', 'scoring')"
-        title="快速切換至成績計算"
-      ></div>
-
-      <!-- Right Index Tabs (Dusty Rose, Warm Apricot, Muted Sage) -->
-      <div class="hidden lg:flex flex-col space-y-7 absolute -right-6 top-40 z-0">
-        <div
-          class="w-[72px] h-14 bg-[#c87d8a] transition-all duration-200 hover:translate-x-2.5 shadow-xs cursor-pointer"
-          style="clip-path: polygon(0% 0%, 75% 0%, 50% 50%, 75% 100%, 0% 100%)"
-          @click="$emit('switch-tab', 'ctt')"
-          title="切換至試題分析 (CTT)"
-        ></div>
-        <div
-          class="w-[56px] h-14 bg-[#e9c46a] transition-all duration-200 hover:translate-x-2.5 shadow-xs cursor-pointer"
-          @click="$emit('switch-tab', 'scoring')"
-          title="切換至成績計算 (Scoring)"
-        ></div>
-        <div
-          class="w-[72px] h-14 bg-[#7ea172] rounded-r-full transition-all duration-200 hover:translate-x-2.5 shadow-xs cursor-pointer"
-          @click="$emit('switch-tab', 'batch')"
-          title="切換至全科批次處理 (Batch)"
-        ></div>
-      </div>
-
       <!-- Inner Notebook White Paper Page -->
       <div class="bg-[#fcfdfd] rounded-[2rem] px-3 py-6 sm:px-6 md:pl-20 md:pr-10 shadow-inner min-h-[720px] flex flex-col justify-start relative z-10 border border-slate-100 min-w-0 max-w-full overflow-hidden">
         <slot />
@@ -79,6 +47,4 @@
 <script setup>
 import readBoy from '@/assets/images/read_boy.png'
 import readGirl from '@/assets/images/read_girl.png'
-
-defineEmits(['switch-tab'])
 </script>

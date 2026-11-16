@@ -86,6 +86,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-shrink: 0;
       text-decoration: none;
       cursor: pointer;
     }
@@ -119,6 +120,8 @@
       align-items: center;
       gap: 6px;
       list-style: none;
+      min-width: 0;
+      overflow-x: auto;
     }
 
     .nav-pill {
@@ -133,6 +136,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      flex-shrink: 0;
       transition: all 0.15s ease;
       white-space: nowrap;
     }
@@ -148,32 +152,11 @@
       outline: 1px solid rgba(82, 121, 111, 0.25);
     }
 
-    .saaa-header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .user-capsule {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border: 1px solid rgba(203, 213, 225, 0.8);
-      border-radius: 12px;
-      background: #ffffff;
-      font-size: 11.5px;
-      color: var(--slate-700);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
-    .capsule-badge {
-      background: #e0f2fe;
-      color: #0284c7;
-      border: 1px solid #bae6fd;
-      padding: 2px 7px;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 11px;
+    @media (max-width: 767px) {
+      body { padding-top: 120px; }
+      header.saaa-header { height: auto; flex-wrap: wrap; padding: 0 16px; }
+      .saaa-header-left { width: 100%; height: 68px; }
+      .saaa-nav { width: 100%; padding-bottom: 8px; }
     }
 
     /* ========================================================================= */
@@ -245,66 +228,6 @@
       background: var(--morandi-terracotta);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
       z-index: 20;
-    }
-
-    /* Top Ribbon Bookmarks */
-    .ribbon-bookmark {
-      position: absolute;
-      top: -14px;
-      width: 44px;
-      height: 52px;
-      z-index: 15;
-      clip-path: polygon(50% 25%, 100% 0%, 100% 100%, 0% 100%, 0% 0%);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-    .ribbon-bookmark:hover { transform: translateY(-5px); }
-    .ribbon-oat { right: 88px; background: var(--morandi-oat); }
-    .ribbon-slate { right: 40px; background: var(--morandi-slate-dark); }
-
-    /* Right Index Tabs */
-    .index-tabs-wrapper {
-      position: absolute;
-      right: -24px;
-      top: 140px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      z-index: 5;
-    }
-    @media (max-width: 900px) {
-      .index-tabs-wrapper { display: none; }
-    }
-
-    .index-tab {
-      width: 68px;
-      height: 50px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 10px;
-      font-size: 11px;
-      font-weight: 700;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-    }
-    .index-tab:hover { transform: translateX(10px); }
-    .tab-rose {
-      background: var(--morandi-rose);
-      color: #fff;
-      clip-path: polygon(0% 0%, 75% 0%, 50% 50%, 75% 100%, 0% 100%);
-    }
-    .tab-apricot {
-      background: var(--morandi-apricot);
-      color: var(--morandi-primary-dark);
-      border-radius: 0 10px 10px 0;
-    }
-    .tab-sage {
-      background: var(--morandi-sage);
-      color: #fff;
-      border-radius: 0 9999px 9999px 0;
     }
 
     /* Inner Notebook Page */
@@ -816,14 +739,6 @@
       <button class="nav-pill" id="btnNavBatch" onclick="switchMainTab('batch')">🚀 全科批次處理 (Batch)</button>
       <button class="nav-pill" id="btnNavAbout" onclick="switchMainTab('about')">ℹ️ 演算法規格與四捨五入</button>
     </nav>
-
-    <!-- Header Right Capsule -->
-    <div class="saaa-header-right">
-      <div class="user-capsule">
-        <span class="capsule-badge">旗艦雙模</span>
-        <span style="font-weight:700;">純 JS 離線運算 · 0.00 標準</span>
-      </div>
-    </div>
   </header>
 
   <!-- ========================================================================= -->
@@ -859,17 +774,6 @@
           <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
           <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
           <div class="spine-loop"><div class="spine-inner"></div><div class="spine-outer"></div></div>
-      </div>
-
-      <!-- Top Ribbon Bookmarks (Oat Mustard & Vintage Slate) -->
-      <div class="ribbon-bookmark ribbon-oat" onclick="switchMainTab('ctt')" title="切換至試題分析"></div>
-      <div class="ribbon-bookmark ribbon-slate" onclick="switchMainTab('scoring')" title="切換至成績計算"></div>
-
-      <!-- Right Index Tabs -->
-      <div class="index-tabs-wrapper">
-        <div class="index-tab tab-rose" onclick="switchMainTab('ctt')">試題分析</div>
-        <div class="index-tab tab-apricot" onclick="switchMainTab('scoring')">成績計算</div>
-        <div class="index-tab tab-sage" onclick="switchMainTab('batch')">全科批次</div>
       </div>
 
       <!-- Inner White Notebook Paper Page -->
@@ -1512,7 +1416,7 @@ function switchMainTab(tab) {
   ['ctt', 'scoring', 'batch', 'about'].forEach(t => {
     document.getElementById(`tab-${t}`).style.display = (t === tab ? 'block' : 'none');
   });
-  document.querySelectorAll('.tab-nav .tab-btn').forEach((btn, idx) => {
+  document.querySelectorAll('.saaa-nav .nav-pill').forEach((btn, idx) => {
     const tabs = ['ctt', 'scoring', 'batch', 'about'];
     btn.classList.toggle('active', tabs[idx] === tab);
   });

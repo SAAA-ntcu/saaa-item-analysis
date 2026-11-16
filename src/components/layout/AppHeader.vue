@@ -1,7 +1,7 @@
 <template>
-  <header class="fixed top-0 left-0 right-0 h-[68px] bg-white/95 backdrop-blur-md border-b-2 border-[#52796f] shadow-xs z-50 flex items-center justify-between px-4 sm:px-6">
+  <header class="fixed top-0 left-0 right-0 md:h-[68px] bg-white/95 backdrop-blur-md border-b-2 border-[#52796f] shadow-xs z-50 flex flex-wrap md:flex-nowrap items-center justify-between px-4 sm:px-6">
     <!-- Left Logo & Title -->
-    <div class="flex items-center gap-3 cursor-pointer select-none group" @click="$emit('switch-tab', 'ctt')" title="回首頁">
+    <div class="flex items-center gap-3 w-full h-[68px] md:w-auto md:h-auto shrink-0 cursor-pointer select-none group" @click="$emit('switch-tab', 'ctt')" title="回首頁">
       <img :src="logoIcon" alt="SAAA Logo" class="h-10 w-auto group-hover:scale-105 transition-transform" />
       <div class="flex flex-col justify-center">
         <h1 class="text-base sm:text-lg font-black text-[#203b46] tracking-wide leading-tight group-hover:text-[#52796f] transition-colors m-0">
@@ -14,13 +14,13 @@
     </div>
 
     <!-- Center Navigation Tabs -->
-    <nav class="hidden md:flex items-center gap-1 sm:gap-2">
+    <nav class="flex items-center gap-1 sm:gap-2 w-full md:w-auto md:ml-4 min-w-0 overflow-x-auto pb-2 md:pb-0">
       <button
         v-for="tab in tabs"
         :key="tab.key"
         type="button"
         @click="$emit('switch-tab', tab.key)"
-        class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+        class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
         :class="activeTab === tab.key
           ? 'bg-[#edf2ee] text-[#354f52] font-bold shadow-2xs ring-1 ring-[#52796f]/25'
           : 'text-slate-600 hover:bg-[#f4f7f5] hover:text-[#52796f]'"
@@ -29,16 +29,6 @@
         <span>{{ tab.title }}</span>
       </button>
     </nav>
-
-    <!-- Right Mode Capsule -->
-    <div class="flex items-center gap-2">
-      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 border border-slate-200/90 rounded-xl bg-white shadow-2xs text-xs text-slate-700">
-        <span class="px-2 py-0.5 rounded-md font-bold text-xs bg-[#edf2ee] text-[#354f52] border border-[#52796f]/25">
-          Vue 3 旗艦版
-        </span>
-        <span class="font-bold text-slate-800">純 JS 離線運算 · 0.00 規範</span>
-      </div>
-    </div>
   </header>
 </template>
 
